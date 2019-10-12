@@ -7,7 +7,7 @@ d3.forceCluster = forceCluster;
 import {click, labelsArray} from './click';
 import {zoom} from './zoom';
 import { textFormatter } from './utilities';
-import { imageSize, imagePosition, fontSize, textAnchor, textPosition, strokeColor, imagesURL, rectPosition, rectFill, rectSize, rectFilter } from './constants';
+import { imageSize, imagePosition, fontSize, textAnchor, textAlignment, textPosition, strokeColor, imagesURL, rectPosition, rectFill, rectSize, rectFilter } from './constants';
 import { grid } from './snapToGrid';
 import { GRID_WIDTH, GRID_UNIT_SIZE, GRID_HEIGHT } from './constants';
 
@@ -114,6 +114,7 @@ export function update() {
   // Append title 
   var nodeEnterText = nodeEnter.append("text")
     .attr("text-anchor", d => textAnchor[d.type])
+    .attr("alignment-baseline", d => textAlignment[d.type])
     .attr("x", d => textPosition[d.type][0])
     .attr("y", d => textPosition[d.type][1])
     .attr("font-size", d => fontSize[d.type])

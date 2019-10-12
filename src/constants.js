@@ -6,11 +6,19 @@ export const GRID_HEIGHT = 150;
 export const GRID_UNIT_SIZE = 200; 
 const UNIT_MARGIN = 25;
 
+
 export const typeSize = {
   "product" : [1,2],
   "brand" : [2,1],
   "subdept" : [4,2],
-  "dept" : [4,3]
+  "dept" : [4,2]
+}
+
+export const typePixelSize = {
+  "product" : [typeSize["product"][0]*GRID_UNIT_SIZE, typeSize["product"][1]*GRID_UNIT_SIZE],
+  "brand" : [typeSize["brand"][0]*GRID_UNIT_SIZE, typeSize["brand"][1]*GRID_UNIT_SIZE],
+  "subdept" : [typeSize["subdept"][0]*GRID_UNIT_SIZE, typeSize["subdept"][1]*GRID_UNIT_SIZE],
+  "dept" : [typeSize["dept"][0]*GRID_UNIT_SIZE, typeSize["dept"][1]*GRID_UNIT_SIZE]
 }
 
 export const strokeColor = {
@@ -28,10 +36,10 @@ export const rectPosition = {
 }
 
 export const rectSize = {
-  "product" : [typeSize["product"][0]*GRID_UNIT_SIZE - UNIT_MARGIN, typeSize["product"][1]*GRID_UNIT_SIZE - UNIT_MARGIN],
-  "brand" : [typeSize["brand"][0]*GRID_UNIT_SIZE - UNIT_MARGIN, typeSize["brand"][1]*GRID_UNIT_SIZE - UNIT_MARGIN],
-  "subdept" : [typeSize["subdept"][0]*GRID_UNIT_SIZE - UNIT_MARGIN, typeSize["subdept"][1]*GRID_UNIT_SIZE - UNIT_MARGIN],
-  "dept" : [typeSize["dept"][0]*GRID_UNIT_SIZE - UNIT_MARGIN, typeSize["dept"][1]*GRID_UNIT_SIZE - UNIT_MARGIN]
+  "product" : [typePixelSize["product"][0] - UNIT_MARGIN, typePixelSize["product"][1] - UNIT_MARGIN],
+  "brand" : [typePixelSize["brand"][0] - UNIT_MARGIN, typePixelSize["brand"][1] - UNIT_MARGIN],
+  "subdept" : [typePixelSize["subdept"][0] - UNIT_MARGIN, typePixelSize["subdept"][1] - UNIT_MARGIN],
+  "dept" : [typePixelSize["dept"][0] - UNIT_MARGIN, typePixelSize["dept"][1] - UNIT_MARGIN]
 }
 
 export const rectFill = {
@@ -49,16 +57,16 @@ export const rectFilter = {
 }
 
 export const imageSize = {
-  "product" : GRID_UNIT_SIZE - UNIT_MARGIN,
-  "brand" : GRID_UNIT_SIZE - UNIT_MARGIN,
-  "subdept" : 2*GRID_UNIT_SIZE - UNIT_MARGIN,
-  "dept" : 2*GRID_UNIT_SIZE - UNIT_MARGIN
+  "product" : typePixelSize["product"][0] - UNIT_MARGIN,
+  "brand" : typePixelSize["brand"][0] - UNIT_MARGIN,
+  "subdept" : typePixelSize["subdept"][1] - UNIT_MARGIN,
+  "dept" : typePixelSize["dept"][1] - UNIT_MARGIN
 }
 
 export const imagePosition = {
-  "product" : [12.5,12.5],
-  "brand" : [GRID_UNIT_SIZE + 25,25],
-  "subdept" : [0,0],
+  "product" : [UNIT_MARGIN/2,UNIT_MARGIN/2],
+  "brand" : [typePixelSize["brand"][0]/2 + UNIT_MARGIN/2,UNIT_MARGIN/2],
+  "subdept" : [typePixelSize["subdept"][0]/2 + UNIT_MARGIN/2,UNIT_MARGIN/2],
   "dept" : [0,0]
 }
 
@@ -71,16 +79,23 @@ export const textAnchor = {
   "dept" : "middle"
 }
 
+export const textAlignment = {
+  "product" : "start",
+  "brand" : "middle",
+  "subdept" : "middle",
+  "dept" : "middle"
+}
+
 export const textPosition = {
   "product" : [15,GRID_UNIT_SIZE + 22],
-  "brand" : [50,112],
-  "subdept" : [GRID_UNIT_SIZE,GRID_UNIT_SIZE],
-  "dept" : [6*GRID_UNIT_SIZE/2 + UNIT_MARGIN/2,GRID_UNIT_SIZE + UNIT_MARGIN/2]
+  "brand" : [UNIT_MARGIN*2,typePixelSize["brand"][1]/2],
+  "subdept" : [UNIT_MARGIN*2,typePixelSize["subdept"][1]/2],
+  "dept" : [typePixelSize["dept"][0]/2 + UNIT_MARGIN/2,typePixelSize["dept"][1]/2 + UNIT_MARGIN/2]
 }
 
 export const fontSize = {
   "product" : 18,
   "brand" : 24,
-  "subdept" : 26,
-  "dept" : 72
+  "subdept" : 46,
+  "dept" : 64
 }
