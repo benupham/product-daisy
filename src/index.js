@@ -83,7 +83,7 @@ export function update() {
     .attr("class", "node")
     .attr("class", d => d.type)
     .attr("name", function (d) { return d.name; })
-    .style("font-family", "Lato, Roboto, Arial, Helvetica, sans-serif")
+    //.style("font-family", "Lato, Roboto, Arial, Helvetica, sans-serif")
 
   // Append a rectangle background
   nodeEnter.append("rect")
@@ -117,7 +117,7 @@ export function update() {
     .attr("x", d => textPosition[d.type][0])
     .attr("y", d => textPosition[d.type][1])
     .attr("font-size", d => fontSize[d.type])
-    .attr("fill", "#111111");
+    .attr("fill", "#464646");
 
   nodeEnterText.append("tspan")
     .attr("class", "name name-line1")

@@ -1,4 +1,4 @@
-import { GRID_WIDTH, GRID_HEIGHT, GRID_UNIT_SIZE } from "./constants";
+import { GRID_WIDTH, GRID_HEIGHT, GRID_UNIT_SIZE, typeSize } from "./constants";
 
 /* 
 
@@ -9,7 +9,7 @@ from the entering group.
 to be repositioned 
 4. This means all nodes are repositioned (rippled) with each action. 
 
-Use this: https://observablehq.com/@kikinna/uaah-force-directed-layout-in-a-grid
+Based on this: https://observablehq.com/@kikinna/uaah-force-directed-layout-in-a-grid
 
 */
 
@@ -38,72 +38,35 @@ export let grid = {
 
   fitToType : function(d, i) {
     let type = d.type;
+    
+    let candidate = [];
 
-    switch (type) {
-      case 'dept':  
-         
-        if (this.cells[i+1] && this.cells[i+2] && 
-            this.cells[i+GRID_HEIGHT] && this.cells[i+GRID_HEIGHT+1] && this.cells[i+GRID_HEIGHT+2] && 
-            this.cells[i+(2*GRID_HEIGHT)] && this.cells[i+(2*GRID_HEIGHT)+1] && this.cells[i+(2*GRID_HEIGHT)+2]
-           ) {
-            
-            if (!this.cells[i].occupied && !this.cells[i+1].occupied && !this.cells[i+2].occupied &&
-                !this.cells[i+GRID_HEIGHT].occupied && !this.cells[i+GRID_HEIGHT+1].occupied && !this.cells[i+GRID_HEIGHT+2].occupied && 
-                !this.cells[i+(2*GRID_HEIGHT)].occupied && !this.cells[i+(2*GRID_HEIGHT)+1].occupied && !this.cells[i+(2*GRID_HEIGHT)+2].occupied
-                ) {
-                  
-              return [
-                      i, i+1, i+2, 
-                      i+GRID_HEIGHT, i+GRID_HEIGHT+1, i+GRID_HEIGHT+2, 
-                      i+(2*GRID_HEIGHT), i+(2*GRID_HEIGHT)+1, i+(2*GRID_HEIGHT)+2
-                    ]
-            }
-        } 
-        break;
-        
-      case 'subdept':
-   
-        if (this.cells[i+1] && 
-          this.cells[i+GRID_HEIGHT] && this.cells[i+GRID_HEIGHT+1]           
-          ) {
-          
-            if (!this.cells[i].occupied && !this.cells[i+1].occupied &&
-                !this.cells[i+GRID_HEIGHT].occupied && !this.cells[i+GRID_HEIGHT+1].occupied 
-                ) {
-                  
-              return [
-                      i, i+1, 
-                      i+GRID_HEIGHT, i+GRID_HEIGHT+1
-                    ]
+    // Check that all points in a item type size are available 
+    loop1 : // named loops can be broken by nested loop break commands
+    for (let width = 0; width < typeSize[type][0]; width++) {
+      let point = i + (width * GRID_HEIGHT); 
+      if (this.cells[point] && !this.cells[point].occupied) {
+        candidate.push(i + (width * GRID_HEIGHT));
+        for (let height = 0; height < typeSize[type][1]; height++) {
+          point = i + height + (width * GRID_HEIGHT);
+          if (this.cells[point] && !this.cells[point].occupied) {
+            candidate.push(i + height + (width * GRID_HEIGHT))
+          } else {
+            candidate = false;
+            break loop1;
           }
-        } 
-        break;    
-
-      case 'brand':
-        if (this.cells[i+GRID_HEIGHT] && !this.cells[i].occupied && !this.cells[i+GRID_HEIGHT].occupied) {
-          return [i, i+GRID_HEIGHT]
-        } 
-        break;
-  
-      case 'product':
-        if (this.cells[i+1] && !this.cells[i].occupied && !this.cells[i+1].occupied) {
-          return [i, i+1]
-        } 
-        break;
-      
-      default:
-        return false
+        }
+      } else {
+        candidate = false; 
+        break loop1;
+      } 
     }
+    return candidate
   },
 
   snapToGrid : function(d) { 
     let gridpoint = grid.occupyNearest(d);
     if (gridpoint) {            
-        // ensures smooth movement towards final positoin
-        // d.x += (gridpoint.x - d.x) * .33;
-        // d.y += (gridpoint.y - d.y) * .33;
-      
-        // jumps directly into final position  
         d.x = gridpoint.x;
         d.y = gridpoint.y
       }
@@ -112,7 +75,7 @@ export let grid = {
   occupyNearest : function(p) {
     var minDist = 100000000;
     var d;
-    var candidate = false;
+    let candidate = false;
 
     for(var i = 0; i < this.cells.length; i++) {
       

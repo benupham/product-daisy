@@ -15,6 +15,20 @@ g.dept, g.subdept, g.brand, g.product {
   fill: #c45500;
 }
 
+.product rect.wrap {
+  fill: #fff;
+  stroke: lightgray;
+  stroke-width: 1px;
+  height: 375px;
+  width: 175px;
+  filter:url(#dropshadow);
+}
+
+.product image {
+  width: 175px;
+  height: 175px;
+}
+
 .brand rect.wrap {
   fill: #fff;
   stroke: lightgray;
@@ -29,16 +43,10 @@ g.dept, g.subdept, g.brand, g.product {
   height: 150px;
 }
 
-.product rect.wrap {
-  fill: #fff;
-  stroke: lightgray;
-  stroke-width: 1px;
-  height: 375px;
-  width: 175px;
-  filter:url(#dropshadow);
+.dept {
+  letter-spacing: 10px;
+  text-transform: uppercase;
 }
-
-.product image {
-  width: 175px;
-  height: 175px;
+.dept image {
+  display: none;
 }
