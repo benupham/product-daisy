@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<!-- saved from url=(0054)http://bl.ocks.org/natebates/raw/273b99ddf86e2e2e58ff/ -->
+<html class="gr__bl_ocks_org"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head><body data-gr-c-s-loaded="true">
+<script src="./bl.ocks.org_files/d3.v3.min.js"></script>
+<script>
+
+var width = 960,
+	height = 500;
+
+var nodes = d3.range(5).map(function(d, i) {
+		return {
+			width: 50,
+			height: 50,
+		};
+	}),
+	root = nodes[0],
+	color = d3.scale.category10();
+
+var svg = d3.select('body').append('svg')
+	.attr('width', width)
+	.attr('height', height);
+
+svg.selectAll('.rect')
+		.data(nodes.slice(1))
+	.enter().append('rect')
+		.attr('width', function(d) { return d.width; })
+		.attr('height', function(d) { return d.height; })
+		.style('fill', function(d, i) { return color(i % 3); })
+		.attr('transform', function(d) { return 'translate(' + (-d.width / 2) + ',' + (-d.height / 2) + ')'; });
+
+svg.on('mousemove', function() {
+	var p1 = d3.mouse(this);
+
+	root.px = p1[0];
+	root.py = p1[1];
+	force.resume();
+});
+
+// mouse node, position off screen initially
+root.x = 2000;
+root.y = 2000;
+root.width = 0;
+root.height = 0;
+root.fixed = true;
+
+var force = d3.layout.force()
+	.gravity(0.05)
+	.charge(function(d, i) { return i ? -30 : -2000; })
+	.nodes(nodes)
+	.size([width, height]);
+
+force.on('tick', function(e) {
+	var q = d3.geom.quadtree(nodes),
+		i = 0,
+		n = nodes.length;
+
+	while (++i < n) {
+		q.visit(collide(nodes[i]));
+	}
+
+	svg.selectAll('rect')
+		.attr('x', function(d) { return d.x; })
+		.attr('y', function(d) { return d.y; });
+});
+
+force.start();
+
+function collide(node) {
+	return function(quad, x1, y1, x2, y2) {
+		var updated = false;
+		if (quad.point && (quad.point !== node)) {
+
+			var x = node.x - quad.point.x,
+				y = node.y - quad.point.y,
+				xSpacing = (quad.point.width + node.width) / 2,
+				ySpacing = (quad.point.height + node.height) / 2,
+				absX = Math.abs(x),
+				absY = Math.abs(y),
+				l,
+				lx,
+				ly;
+
+			if (absX < xSpacing && absY < ySpacing) {
+				l = Math.sqrt(x * x + y * y);
+
+				lx = (absX - xSpacing) / l;
+				ly = (absY - ySpacing) / l;
+
+				// the one that's barely within the bounds probably triggered the collision
+				if (Math.abs(lx) > Math.abs(ly)) {
+					lx = 0;
+				} else {
+					ly = 0;
+				}
+
+				node.x -= x *= lx;
+				node.y -= y *= ly;
+				quad.point.x += x;
+				quad.point.y += y;
+
+				updated = true;
+			}
+		}
+		return updated;
+	};
+}
+
+</script>
+
+
+</body></html>
