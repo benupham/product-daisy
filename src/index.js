@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import * as d3plus from 'd3plus-text';
 import { forceAttract } from 'd3-force-attract';
 import {forceCluster} from 'd3-force-cluster';
 d3.forceAttract = forceAttract;
@@ -7,7 +8,7 @@ d3.forceCluster = forceCluster;
 import {click, labelsArray} from './click';
 import {zoom} from './zoom';
 import { textFormatter } from './utilities';
-import { imageSize, imagePosition, fontSize, textAnchor, textAlignment, textPosition, strokeColor, imagesURL, rectPosition, rectFill, rectSize, rectFilter } from './constants';
+import { imageSize, imagePosition, fontSize, textAnchor, textAlignment, textPosition, strokeColor, imagesURL, rectPosition, rectFill, rectSize, rectFilter, textWidth, textMaxLen } from './constants';
 import { grid } from './snapToGrid';
 import { GRID_WIDTH, GRID_UNIT_SIZE, GRID_HEIGHT } from './constants';
 
@@ -111,6 +112,13 @@ export function update() {
     .attr("width", d => imageSize[d.type])
     .attr("alignment-baseline", "middle")
 
+  //   new d3plus.TextBox()
+  // .data(nodes)
+  // .fontResize(true)
+  // .height(100)
+  // .width(200)
+  // .x(function(d, i) { return i * 250; })
+  // .render();
   // Append title 
   var nodeEnterText = nodeEnter.append("text")
     .attr("text-anchor", d => textAnchor[d.type])
@@ -122,16 +130,17 @@ export function update() {
 
   nodeEnterText.append("tspan")
     .attr("class", "name name-line1")
-    .text(d =>  textFormatter(d.name, 25, 50)[0])
+    .text(d =>  textFormatter(d.name, textWidth[d.type], textMaxLen[d.type])[0])
     
   nodeEnterText.append("tspan")
     .attr("class", "name name-line2")
-    .text(d =>  textFormatter(d.name, 25, 50)[1])
+    .text(d =>  textFormatter(d.name, textWidth[d.type], textMaxLen[d.type])[1])
     .attr("x", d => textPosition[d.type][0])
     .attr("dy", d => fontSize[d.type]*1.1)
   
   // Append price for products 
-  nodeEnterText.append("tspan")
+  nodeEnterText.filter(d => d.type === "product")
+    .append("tspan")
     .text(d =>  d.price)  
     .attr("class", "price")
     .attr("font-size", 16)

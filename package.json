@@ -20,6 +20,7 @@
     "d3": "^4.13.0",
     "d3-force-attract": "^0.1.1",
     "d3-force-cluster": "^0.1.2",
+    "d3plus-text": "^0.9.50",
     "styles-loader": "^1.0.2",
     "url-loader": "^2.2.0"
   }

@@ -5,3 +5,4 @@ dist/images
 dist/data
 data
 src/scratchpad.js
+*.zip

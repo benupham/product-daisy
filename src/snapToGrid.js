@@ -42,6 +42,7 @@ export let grid = {
     let candidate = [];
 
     // Check that all points in a item type size are available 
+    // TODO: change to use reduce()
     loop1 : // named loops can be broken by nested loop break commands
     for (let width = 0; width < typeSize[type][0]; width++) {
       let point = i + (width * GRID_HEIGHT); 

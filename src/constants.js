@@ -10,8 +10,8 @@ const UNIT_MARGIN = 25;
 export const typeSize = {
   "product" : [1,2],
   "brand" : [2,1],
-  "subdept" : [4,2],
-  "dept" : [4,2]
+  "subdept" : [2,1],
+  "dept" : [2,1]
 }
 
 export const typePixelSize = {
@@ -23,9 +23,9 @@ export const typePixelSize = {
 
 export const strokeColor = {
   "product" : "white",
-  "brand" : "#464646",
-  "subdept" : "#464646",
-  "dept" : "#464646"
+  "brand" : "lightgray",
+  "subdept" : "lightgray",
+  "dept" : "lightgray"
 }
 
 export const rectPosition = {
@@ -70,7 +70,12 @@ export const imagePosition = {
   "dept" : [0,0]
 }
 
-
+export const fontSize = {
+  "product" : 18,
+  "brand" : 24,
+  "subdept" : 30,
+  "dept" : 42
+}
 
 export const textAnchor = {
   "product" : "start",
@@ -88,14 +93,21 @@ export const textAlignment = {
 
 export const textPosition = {
   "product" : [15,GRID_UNIT_SIZE + 22],
-  "brand" : [UNIT_MARGIN*2,typePixelSize["brand"][1]/2],
+  "brand" : [UNIT_MARGIN*2,typePixelSize["brand"][1]/2 + fontSize["brand"]/2],
   "subdept" : [UNIT_MARGIN*2,typePixelSize["subdept"][1]/2],
-  "dept" : [typePixelSize["dept"][0]/2 + UNIT_MARGIN/2,typePixelSize["dept"][1]/2 + UNIT_MARGIN/2]
+  "dept" : [typePixelSize["dept"][0]/2,typePixelSize["dept"][1]/2 + fontSize["dept"]/2]
 }
 
-export const fontSize = {
-  "product" : 18,
-  "brand" : 24,
-  "subdept" : 46,
-  "dept" : 64
+export const textWidth = {
+  "product" : 25,
+  "brand" : 10,
+  "subdept" : 10,
+  "dept" : 35
+}
+
+export const textMaxLen = {
+  "product" : 50,
+  "brand" : 50,
+  "subdept" : 50,
+  "dept" : 50
 }

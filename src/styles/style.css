@@ -44,7 +44,7 @@ g.dept, g.subdept, g.brand, g.product {
 }
 
 .dept {
-  letter-spacing: 10px;
+  letter-spacing: 3px;
   text-transform: uppercase;
 }
 .dept image {

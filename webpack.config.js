@@ -9,7 +9,7 @@ module.exports = {
   mode: 'development',
   devServer: {
     host: 'localhost', 
-    port: 3000,
+    port: 3030,
     contentBase: './dist' 
   },
   module: {
