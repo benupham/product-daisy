@@ -69,7 +69,7 @@ export let grid = {
     let gridpoint = grid.occupyNearest(d);
     if (gridpoint) {            
         d.x = gridpoint.x;
-        d.y = gridpoint.y
+        d.y = gridpoint.y;
       }
   },
 

@@ -30,11 +30,14 @@ console.log('zoomWidth', zoomWidth)
 
 // Add SVG canvas and zoom effect
 export const svg = d3.select("body").append("svg")
-.attr("width", width)
-.attr("height", height)
-.call(zoom)
-.attr("transform", "translate(" + zoomWidth + "," + zoomHeight + ")" )
-.append("g");
+  .attr("width", 1000)
+  .attr("height", 1000)
+  .call(zoom)
+  .append("g")
+  .attr("transform", "translate(" + zoomWidth + "," + zoomHeight + ")")
+  ;
+  
+  // .attr("transform", "translate(" + zoomWidth + "," + zoomHeight + ")")
 
 var node = svg.selectAll('g.node'); 
 
