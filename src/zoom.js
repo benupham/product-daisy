@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import {svg, g, nodes} from './index';
+import {svg} from './index';
 
 export const zoom = d3.zoom()
 .scaleExtent([0.01,10])

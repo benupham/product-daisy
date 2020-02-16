@@ -31,9 +31,14 @@ g.latest rect.bg-rect {
   to {fill-opacity: 0.1;}
 }
 
+g rect.wrap {
+  /* stroke:lightgray;
+  stroke-width: 1px; */
+  filter:url(#little-glow);
+}
+
 g.latest rect.wrap {
-  stroke: gray;
-  filter:url(#black-glow);
+  filter:url(#big-glow);
 }
 
 .product .name {

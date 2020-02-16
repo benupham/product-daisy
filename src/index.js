@@ -8,9 +8,10 @@ d3.forceCluster = forceCluster;
 import {click, labelsArray} from './click';
 import {zoom} from './zoom';
 import { textFormatter } from './utilities';
-import { imageSize, imagePosition, fontSize, textAnchor, textAlignment, textPosition, strokeColor, imagesURL, rectPosition, rectFill, rectSize, rectFilter, textWidth, textMaxLen, typePixelSize } from './constants';
+import { imageSize, imagePosition, nameFontSize, nameAnchor, nameAlignment, namePosition, strokeColor, imagesURL, rectPosition, rectFill, rectSize, rectFilter, nameWidth, nameMaxLen, typePixelSize } from './constants';
 import { grid } from './snapToGrid';
 import { GRID_WIDTH, GRID_UNIT_SIZE, GRID_HEIGHT } from './constants';
+import { wrapNames } from './sizeText';
 
 import './styles/style.css';
 
@@ -18,14 +19,13 @@ export const depts = [];
 export const subdepts = [];
 export const brands = [];
 export const products = [];
-export let nodes = [];
+export let items = [];
 
 export const width = GRID_WIDTH * GRID_UNIT_SIZE;
 export const height = GRID_HEIGHT * GRID_UNIT_SIZE;
-const scale = .2;
 const zoomWidth = -(GRID_WIDTH * GRID_UNIT_SIZE/2);
 const zoomHeight = -(GRID_HEIGHT * GRID_UNIT_SIZE/2);
-console.log('zoomWidth', zoomWidth)
+
 
 
 // Add SVG canvas and zoom effect
@@ -63,8 +63,8 @@ d3.json("../data/productSet.json", function(error, root) {
     d.x = width/2;
     d.y = height/2;
   });
-  nodes = depts;
-  console.log('nodes',nodes)
+  items = depts;
+  console.log('items',items)
   update();
 
 })
@@ -76,15 +76,17 @@ export function update() {
   let t = d3.transition()
   .duration(500);
   
-  nodes.forEach(d => grid.snapToGrid(d));
-  node = node.data(nodes, function(d) { return d.id;})
+  items.forEach(d => grid.snapToGrid(d));
+  wrapNames(items);
+
+  node = node.data(items, function(d) { return d.id;})
   
   node.classed("latest", false);
 
   node.exit()
     .remove();
 
-  // Enter any new nodes.
+  // Enter any new items.
   var nodeEnter = node.enter().append("g")
     .attr("class", d => d.type + " node latest")
     .attr("name", function (d) { return d.name; })
@@ -108,8 +110,6 @@ export function update() {
     //.transition(t)
     .attr("height", d => rectSize[d.type][1]) 
     .attr("width", d => rectSize[d.type][0])
-    
-
 
   // Append images
   nodeEnter.append("image")
@@ -122,31 +122,29 @@ export function update() {
     .attr("width", d => imageSize[d.type])
     .attr("alignment-baseline", "middle")
 
-  //   new d3plus.TextBox()
-  // .data(nodes)
-  // .fontResize(true)
-  // .height(100)
-  // .width(200)
-  // .x(function(d, i) { return i * 250; })
-  // .render();
+  
+
   // Append title 
   var nodeEnterText = nodeEnter.append("text")
-    .attr("text-anchor", d => textAnchor[d.type])
-    .attr("alignment-baseline", d => textAlignment[d.type])
-    .attr("x", d => textPosition[d.type][0])
-    .attr("y", d => textPosition[d.type][1])
-    .attr("font-size", d => fontSize[d.type])
-    .attr("fill", "#464646");
+    .attr("text-anchor", d => nameAnchor[d.type])
+    .attr("alignment-baseline", d => d.nameWrap.lines.length > 1 ? "start" : "middle")
+    .attr("x", d => namePosition[d.type][0])
+    .attr("y", d => namePosition[d.type][1])
+    .attr("font-size", d => nameFontSize[d.type])
+    .attr("fill", "#464646")
+    .text(d =>  d.nameWrap.lines[0]);
 
-  nodeEnterText.append("tspan")
-    .attr("class", "name name-line1")
-    .text(d =>  textFormatter(d.name, textWidth[d.type], textMaxLen[d.type])[0])
     
-  nodeEnterText.append("tspan")
-    .attr("class", "name name-line2")
-    .text(d =>  textFormatter(d.name, textWidth[d.type], textMaxLen[d.type])[1])
-    .attr("x", d => textPosition[d.type][0])
-    .attr("dy", d => fontSize[d.type]*1.1)
+
+  // nodeEnterText.append("tspan")
+  //   .attr("class", "name name-line1")
+  //   .text(d =>  d.nameWrap.lines[0])
+    
+  // nodeEnterText.append("tspan")
+  //   .attr("class", "name name-line2")
+  //   .text(d =>  d.nameWrap.lines[1])
+  //   .attr("x", d => textPosition[d.type][0])
+  //   .attr("dy", d => nameFontSize[d.type]*1.1)
   
   // Append price for products 
   nodeEnterText.filter(d => d.type === "product")
@@ -155,17 +153,17 @@ export function update() {
     .attr("class", "price")
     .attr("font-size", 16)
     .attr("fill", "#B12704")
-    .attr("x", d => textPosition[d.type][0])
-    .attr("dy", d => fontSize[d.type]*4);
+    .attr("x", d => namePosition[d.type][0])
+    .attr("dy", d => nameFontSize[d.type]*4);
   
   // Append stars rating for products
   nodeEnter.filter(d => d.type === "product")
     .append("image") 
     .attr("xlink:href", imagesURL + "category-images/four-and-half-stars.png")
     .attr("name", "stars")
-    .attr("x", d => textPosition[d.type][0])
+    .attr("x", d => namePosition[d.type][0])
     .attr("y", d => {
-      return textFormatter(d.name, 25, 50)[1].length > 0 ? textPosition[d.type][1] + fontSize[d.type]*1.75 : textPosition[d.type][1] + fontSize[d.type]*0.75
+      return textFormatter(d.name, 25, 50)[1].length > 0 ? namePosition[d.type][1] + nameFontSize[d.type]*1.75 : namePosition[d.type][1] + nameFontSize[d.type]*0.75
     })
     .attr("height", 15 ) 
     .attr("width", 80)
@@ -179,9 +177,9 @@ export function update() {
     .attr("stroke", "#a88734")
     .attr("width", d => imageSize[d.type])
     .attr("height", 30)
-    .attr("x", d => textPosition[d.type][0])
+    .attr("x", d => namePosition[d.type][0])
     .attr("y", d => {
-      return textPosition[d.type][1] + fontSize[d.type]*6
+      return namePosition[d.type][1] + nameFontSize[d.type]*6
     })
   // Buy button label
   nodeEnter.filter(d => d.type === "product")
@@ -189,7 +187,7 @@ export function update() {
     .text("Add to Cart")
     .attr("x", d => imageSize[d.type]/2)
     .attr("y", d => {
-      return textPosition[d.type][1] + fontSize[d.type]*6.5 + 15
+      return namePosition[d.type][1] + nameFontSize[d.type]*6.5 + 15
     })
     .attr("text-anchor", "middle")
     .attr('fill', '#111111')
@@ -202,6 +200,10 @@ export function update() {
     .transition(t)  
     .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
   
+  // slowly fades the glow on the most recently added items  
+  document.getElementById("fade-to-grey").beginElement();
+  document.getElementById("shrink").beginElement();
+
   node.on("click",click);
   
 }  

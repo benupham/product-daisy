@@ -15,7 +15,7 @@
       </linearGradient>
 
       <filter id="dropshadow" height="130%">
-        <feGaussianBlur in="SourceAlpha" stdDeviation="3"/> <!-- stdDeviation is how much to blur -->
+        <feGaussianBlur in="SourceAlpha" stdDeviation="2"/> <!-- stdDeviation is how much to blur -->
         <feOffset dx="2" dy="2" result="offsetblur"/> <!-- how much to offset -->
         <feComponentTransfer>
           <feFuncA type="linear" slope="0.5"/> <!-- slope is the opacity of the shadow -->
@@ -26,26 +26,49 @@
         </feMerge>
       </filter>
     
-      <filter id="glow">
-        <feGaussianBlur stdDeviation="10.5" result="coloredBlur"/>
-        <feMerge>
-            <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-    </filter>
+    
 
-    <filter id="black-glow">
-      <feColorMatrix type="matrix" values=
-                  "0 0 0 0   0
-                   0 0 0 0   0
-                   0 0 0 0   0
-                   0 0 0 0.7 0"/>
-      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+    <filter id="big-glow">
+      <feColorMatrix type="matrix" 
+      values="0.94     0     0     0     0
+              0     0.53     0     0     0
+              0     0     0.02     0     0
+              0     0     0     1     0 "
+      >
+        <animate id="fade-to-grey" 
+          attributeName="values" 
+          attributeType="XML" 
+          begin="indefinite" 
+          dur="7" 
+          to="0.5     0     0     0     0
+              0     0.5     0     0     0
+              0     0     0.5     0     0
+              0     0     0     1     0" 
+          fill="freeze" 
+        />
+      </feColorMatrix>        
+      <feGaussianBlur id="blur" stdDeviation="8.5" result="coloredBlur">
+        <animate id="shrink" attributeName="stdDeviation" attributeType="XML" begin="indefinite" dur="7" to="5" fill="freeze" />    
+      </feGaussianBlur>
       <feMerge>
           <feMergeNode in="coloredBlur"/>
           <feMergeNode in="SourceGraphic"/>
       </feMerge>
   </filter>
+  <filter id="little-glow">
+    <feColorMatrix type="matrix" 
+    values="0.5     0     0     0     0
+            0     0.5     0     0     0
+            0     0     0.5     0     0
+            0     0     0     1     0 "/>
+    <feGaussianBlur id="blur" stdDeviation="2" result="coloredBlur">      
+    </feGaussianBlur>
+    <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+</filter>
+
     </defs>
   </svg>
   <div id="zoomMeter" style="position:sticky; bottom: 0;"></div>

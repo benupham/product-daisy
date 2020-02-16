@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 
-import {depts,subdepts,brands,products, nodes, update, svg} from './index';
+import {depts,subdepts,brands,products, items, update, svg} from './index';
 
 export const labelsArray = [];
 
@@ -19,23 +19,23 @@ export function click(d) {
   d.children = newNodes;
   labelsArray.push(d);
 
-  console.log('clicked node',d)
+  console.log('clicked item: ',d)
 
-  // Remove the clicked parent node
-  for( var i = 0; i < nodes.length; i++){ 
-    if ( nodes[i].id === d.id) {
-      nodes.splice(i, 1);
+  // Remove the clicked parent item
+  for( var i = 0; i < items.length; i++){ 
+    if ( items[i].id === d.id) {
+      items.splice(i, 1);
     }
   }
 
   newNodes.forEach((n,i) => {
       n.x = d.x;
       n.y = d.y;
-      nodes.unshift(n);   
+      items.unshift(n);   
        
   });
   update(); 
-  nodes.forEach(n => console.log(n.name, n.x, n.y));
+  items.forEach(n => console.log(n.name, n.x, n.y));
 }
 
 

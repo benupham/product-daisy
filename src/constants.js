@@ -70,42 +70,42 @@ export const imagePosition = {
   "dept" : [0,0]
 }
 
-export const fontSize = {
+export const nameFontSize = {
   "product" : 18,
   "brand" : 24,
   "subdept" : 30,
   "dept" : 42
 }
 
-export const textAnchor = {
+export const nameAnchor = {
   "product" : "start",
   "brand" : "start",
   "subdept" : "start",
   "dept" : "middle"
 }
 
-export const textAlignment = {
+export const nameAlignment = {
   "product" : "start",
   "brand" : "middle",
   "subdept" : "middle",
   "dept" : "middle"
 }
 
-export const textPosition = {
+export const namePosition = {
   "product" : [15,GRID_UNIT_SIZE + 22],
-  "brand" : [UNIT_MARGIN*2,typePixelSize["brand"][1]/2 + fontSize["brand"]/2],
+  "brand" : [UNIT_MARGIN*2,typePixelSize["brand"][1]/2 + nameFontSize["brand"]/2],
   "subdept" : [UNIT_MARGIN*2,typePixelSize["subdept"][1]/2],
-  "dept" : [typePixelSize["dept"][0]/2,typePixelSize["dept"][1]/2 + fontSize["dept"]/2]
+  "dept" : [typePixelSize["dept"][0]/2,typePixelSize["dept"][1]/2]
 }
 
-export const textWidth = {
+export const nameWidth = {
   "product" : 25,
   "brand" : 10,
   "subdept" : 10,
   "dept" : 35
 }
 
-export const textMaxLen = {
+export const nameMaxLen = {
   "product" : 50,
   "brand" : 50,
   "subdept" : 50,
