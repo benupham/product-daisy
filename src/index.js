@@ -8,7 +8,7 @@ d3.forceCluster = forceCluster;
 import {click, labelsArray} from './click';
 import {zoom} from './zoom';
 import { textFormatter } from './utilities';
-import { imageSize, imagePosition, fontSize, textAnchor, textAlignment, textPosition, strokeColor, imagesURL, rectPosition, rectFill, rectSize, rectFilter, textWidth, textMaxLen } from './constants';
+import { imageSize, imagePosition, fontSize, textAnchor, textAlignment, textPosition, strokeColor, imagesURL, rectPosition, rectFill, rectSize, rectFilter, textWidth, textMaxLen, typePixelSize } from './constants';
 import { grid } from './snapToGrid';
 import { GRID_WIDTH, GRID_UNIT_SIZE, GRID_HEIGHT } from './constants';
 
@@ -35,6 +35,7 @@ export const svg = d3.select("body").append("svg")
   .call(zoom)
   .append("g")
   .attr("transform", "translate(" + zoomWidth + "," + zoomHeight + ")");
+
   
   // .attr("transform", "translate(" + zoomWidth + "," + zoomHeight + ")")
 
@@ -78,15 +79,22 @@ export function update() {
   nodes.forEach(d => grid.snapToGrid(d));
   node = node.data(nodes, function(d) { return d.id;})
   
+  node.classed("latest", false);
+
   node.exit()
     .remove();
 
   // Enter any new nodes.
   var nodeEnter = node.enter().append("g")
-    .attr("class", "node")
-    .attr("class", d => d.type)
+    .attr("class", d => d.type + " node latest")
     .attr("name", function (d) { return d.name; })
-    //.style("font-family", "Lato, Roboto, Arial, Helvetica, sans-serif")
+
+  nodeEnter.append("rect")
+    .attr("class", "bg-rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", d => typePixelSize[d.type][0])
+    .attr("height", d => typePixelSize[d.type][1])
 
   // Append a rectangle background
   nodeEnter.append("rect")
@@ -97,10 +105,10 @@ export function update() {
     .attr("fill", d => rectFill[d.type])
     .attr("fill-opacity", 1)
     .attr("stroke", d => strokeColor[d.type])
-    .transition(t)
+    //.transition(t)
     .attr("height", d => rectSize[d.type][1]) 
     .attr("width", d => rectSize[d.type][0])
-    .style("filter", d => rectFilter[d.type])
+    
 
 
   // Append images
@@ -109,7 +117,7 @@ export function update() {
     .attr("name", function (d) { return d.name; })
     .attr("x", d => imagePosition[d.type][0])
     .attr("y", d => imagePosition[d.type][1])
-    .transition(t)
+    // .transition(t)
     .attr("height", d => imageSize[d.type] ) 
     .attr("width", d => imageSize[d.type])
     .attr("alignment-baseline", "middle")

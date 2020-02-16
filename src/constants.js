@@ -58,7 +58,7 @@ export const rectFilter = {
 
 export const imageSize = {
   "product" : typePixelSize["product"][0] - UNIT_MARGIN,
-  "brand" : typePixelSize["brand"][0] - UNIT_MARGIN,
+  "brand" : typePixelSize["brand"][1] - UNIT_MARGIN,
   "subdept" : typePixelSize["subdept"][1] - UNIT_MARGIN,
   "dept" : typePixelSize["dept"][1] - UNIT_MARGIN
 }

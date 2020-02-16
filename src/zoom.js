@@ -6,8 +6,6 @@ export const zoom = d3.zoom()
 .on("zoom", zoomed);  
 
 function zoomed() {
-  console.log(d3.event.transform)
-  console.log(d3.event.transform.translate(-15000, -15000))
   let transform = d3.event.transform
   svg.attr("transform", d3.event.transform.translate(-15000,-15000));
 

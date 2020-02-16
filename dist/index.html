@@ -26,6 +26,26 @@
         </feMerge>
       </filter>
     
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="10.5" result="coloredBlur"/>
+        <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+    </filter>
+
+    <filter id="black-glow">
+      <feColorMatrix type="matrix" values=
+                  "0 0 0 0   0
+                   0 0 0 0   0
+                   0 0 0 0   0
+                   0 0 0 0.7 0"/>
+      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+      <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+  </filter>
     </defs>
   </svg>
   <div id="zoomMeter" style="position:sticky; bottom: 0;"></div>

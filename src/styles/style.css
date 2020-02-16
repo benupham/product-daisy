@@ -17,6 +17,25 @@ g.dept, g.subdept, g.brand, g.product {
   cursor: pointer;
 }
 
+g rect.bg-rect {
+  fill-opacity: 0;
+}
+
+g.latest rect.bg-rect {
+  /* fill: lightgray; */
+  /* animation: latest 7s forwards 1; */
+}
+
+@keyframes latest {
+  from {fill-opacity: 1;}
+  to {fill-opacity: 0.1;}
+}
+
+g.latest rect.wrap {
+  stroke: gray;
+  filter:url(#black-glow);
+}
+
 .product .name {
   fill: #0066c0;
   cursor: pointer;
@@ -32,7 +51,6 @@ g.dept, g.subdept, g.brand, g.product {
   stroke-width: 1px;
   height: 375px;
   width: 175px;
-  filter:url(#dropshadow);
 }
 
 .product image {
@@ -44,10 +62,8 @@ g.dept, g.subdept, g.brand, g.product {
   fill: #fff;
   stroke: lightgray;
   stroke-width: 1px;
-  height: 175px;
-  width: 375px;
-  filter:url(#dropshadow);
 }
+
 
 .brand image {
   width: 150px;
