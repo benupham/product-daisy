@@ -6,3 +6,6 @@ dist/data
 data
 src/scratchpad.js
 *.zip
+*.png
+*.jpg
+dist/images_old

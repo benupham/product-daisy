@@ -23,19 +23,18 @@ export let nodes = [];
 export const width = GRID_WIDTH * GRID_UNIT_SIZE;
 export const height = GRID_HEIGHT * GRID_UNIT_SIZE;
 const scale = .2;
-const zoomWidth = -width/2;
-const zoomHeight = -height/2;
+const zoomWidth = -(GRID_WIDTH * GRID_UNIT_SIZE/2);
+const zoomHeight = -(GRID_HEIGHT * GRID_UNIT_SIZE/2);
 console.log('zoomWidth', zoomWidth)
 
 
 // Add SVG canvas and zoom effect
 export const svg = d3.select("body").append("svg")
-  .attr("width", 1000)
-  .attr("height", 1000)
+  .attr("width", "100%")
+  .attr("height", "100%")
   .call(zoom)
   .append("g")
-  .attr("transform", "translate(" + zoomWidth + "," + zoomHeight + ")")
-  ;
+  .attr("transform", "translate(" + zoomWidth + "," + zoomHeight + ")");
   
   // .attr("transform", "translate(" + zoomWidth + "," + zoomHeight + ")")
 
