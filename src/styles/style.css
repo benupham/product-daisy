@@ -54,11 +54,9 @@ g.latest rect.wrap {
   fill: #fff;
   stroke: lightgray;
   stroke-width: 1px;
-  height: 375px;
-  width: 175px;
 }
 
-.product image {
+.product image.item-image {
   width: 175px;
   height: 175px;
 }

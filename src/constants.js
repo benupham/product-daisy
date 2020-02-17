@@ -92,17 +92,17 @@ export const nameAlignment = {
 }
 
 export const namePosition = {
-  "product" : [15,GRID_UNIT_SIZE + 22],
+  "product" : [22,GRID_UNIT_SIZE + 22],
   "brand" : [UNIT_MARGIN*2,typePixelSize["brand"][1]/2 + nameFontSize["brand"]/2],
   "subdept" : [UNIT_MARGIN*2,typePixelSize["subdept"][1]/2],
   "dept" : [typePixelSize["dept"][0]/2,typePixelSize["dept"][1]/2]
 }
 
 export const nameWidth = {
-  "product" : 25,
-  "brand" : 10,
-  "subdept" : 10,
-  "dept" : 35
+  "product" : rectSize["product"][0] - UNIT_MARGIN/2,
+  "brand" : rectSize["brand"][0]/2,
+  "subdept" : rectSize["subdept"][0]/2,
+  "dept" : 250
 }
 
 export const nameMaxLen = {

@@ -91,13 +91,6 @@ export function update() {
     .attr("class", d => d.type + " node latest")
     .attr("name", function (d) { return d.name; })
 
-  nodeEnter.append("rect")
-    .attr("class", "bg-rect")
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("width", d => typePixelSize[d.type][0])
-    .attr("height", d => typePixelSize[d.type][1])
-
   // Append a rectangle background
   nodeEnter.append("rect")
     .attr("name", function (d) { return d.name; })
@@ -115,6 +108,7 @@ export function update() {
   nodeEnter.append("image")
     .attr("xlink:href", function (d) { return imagesURL + (d.img || "product-images/missing-item.jpg"); })
     .attr("name", function (d) { return d.name; })
+    .attr("class", "item-image")
     .attr("x", d => imagePosition[d.type][0])
     .attr("y", d => imagePosition[d.type][1])
     // .transition(t)
@@ -122,51 +116,44 @@ export function update() {
     .attr("width", d => imageSize[d.type])
     .attr("alignment-baseline", "middle")
 
-  
-
-  // Append title 
+  // Append name 
   var nodeEnterText = nodeEnter.append("text")
+    .attr("class", "name name-line1")
     .attr("text-anchor", d => nameAnchor[d.type])
     .attr("alignment-baseline", d => d.nameWrap.lines.length > 1 ? "start" : "middle")
     .attr("x", d => namePosition[d.type][0])
-    .attr("y", d => namePosition[d.type][1])
+    .attr("y", d => d.nameWrap.lines.length > 1 ? namePosition[d.type][1] - nameFontSize[d.type]/5 : namePosition[d.type][1])
     .attr("font-size", d => nameFontSize[d.type])
     .attr("fill", "#464646")
     .text(d =>  d.nameWrap.lines[0]);
-
     
-
-  // nodeEnterText.append("tspan")
-  //   .attr("class", "name name-line1")
-  //   .text(d =>  d.nameWrap.lines[0])
-    
-  // nodeEnterText.append("tspan")
-  //   .attr("class", "name name-line2")
-  //   .text(d =>  d.nameWrap.lines[1])
-  //   .attr("x", d => textPosition[d.type][0])
-  //   .attr("dy", d => nameFontSize[d.type]*1.1)
+  nodeEnterText.filter(d => d.nameWrap.lines[1])
+    .append("tspan")
+    .attr("class", "name name-line2")
+    .attr("x", d => namePosition[d.type][0])
+    .attr("y", d => namePosition[d.type][1] + nameFontSize[d.type])
+    .text(d =>  d.nameWrap.lines[1]);
   
   // Append price for products 
   nodeEnterText.filter(d => d.type === "product")
     .append("tspan")
     .text(d =>  d.price)  
     .attr("class", "price")
-    .attr("font-size", 16)
+    .attr("font-size", nameFontSize["product"])
     .attr("fill", "#B12704")
     .attr("x", d => namePosition[d.type][0])
-    .attr("dy", d => nameFontSize[d.type]*4);
+    .attr("dy", d => nameFontSize[d.type]*3);
   
   // Append stars rating for products
   nodeEnter.filter(d => d.type === "product")
     .append("image") 
     .attr("xlink:href", imagesURL + "category-images/four-and-half-stars.png")
-    .attr("name", "stars")
+    .attr("class", "stars")
     .attr("x", d => namePosition[d.type][0])
     .attr("y", d => {
-      return textFormatter(d.name, 25, 50)[1].length > 0 ? namePosition[d.type][1] + nameFontSize[d.type]*1.75 : namePosition[d.type][1] + nameFontSize[d.type]*0.75
+      return namePosition[d.type][1] + nameFontSize[d.type]*4.5
     })
-    .attr("height", 15 ) 
-    .attr("width", 80)
+    .attr("height", 25 ) 
   
   // Append buy button  
   nodeEnter.filter(d => d.type === "product")
@@ -175,20 +162,18 @@ export function update() {
     .attr("fill", "url(#lgrad)")
     .attr("rx", "2")
     .attr("stroke", "#a88734")
-    .attr("width", d => imageSize[d.type])
-    .attr("height", 30)
+    .attr("width", 156)
+    .attr("height", 40)
     .attr("x", d => namePosition[d.type][0])
     .attr("y", d => {
-      return namePosition[d.type][1] + nameFontSize[d.type]*6
+      return namePosition[d.type][1] + nameFontSize[d.type]*6.5
     })
   // Buy button label
   nodeEnter.filter(d => d.type === "product")
     .append("text")
     .text("Add to Cart")
-    .attr("x", d => imageSize[d.type]/2)
-    .attr("y", d => {
-      return namePosition[d.type][1] + nameFontSize[d.type]*6.5 + 15
-    })
+    .attr("x", 97.5)
+    .attr("y", 365)
     .attr("text-anchor", "middle")
     .attr('fill', '#111111')
     .attr("font-size", 16)
