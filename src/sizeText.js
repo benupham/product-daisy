@@ -6,8 +6,7 @@ const textwrap = d3plus.textWrap();
 export function wrapNames(items) {
   items.forEach(d => {
     const name = d.name;
-    console.log("font size: ", nameFontSize[d.type])
-    console.log("font width: ", nameWidth[d.type])
+    
     textwrap.fontSize(nameFontSize[d.type]).width(nameWidth[d.type]);
     
     d.nameWrap = textwrap(name);

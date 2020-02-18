@@ -21,16 +21,6 @@ g rect.bg-rect {
   fill-opacity: 0;
 }
 
-g.latest rect.bg-rect {
-  /* fill: lightgray; */
-  /* animation: latest 7s forwards 1; */
-}
-
-@keyframes latest {
-  from {fill-opacity: 1;}
-  to {fill-opacity: 0.1;}
-}
-
 g rect.wrap {
   /* stroke:lightgray;
   stroke-width: 1px; */

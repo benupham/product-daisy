@@ -24,7 +24,9 @@ export let grid = {
         cell = {
           x : i * GRID_UNIT_SIZE,
           y : j * GRID_UNIT_SIZE,
-          occupied : false
+          occupied : false,
+          pid: null,
+          parent: null
         };
         this.cells.push(cell);
       };
@@ -36,9 +38,26 @@ export let grid = {
     return Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2);
   },
 
-  fitToType : function(d, i) {
-    let type = d.type;
-    
+  checkNeighbor : function(p, i) {
+    if (this.cells[i + GRID_HEIGHT].parent === p.parent) {
+      return true
+    } else if (this.cells[i - GRID_HEIGHT].parent === p.parent) {
+      return true
+    } else if (this.cells[i + 1].parent === p.parent) {
+      return true
+    } else if (this.cells[i - 1].parent === p.parent) {
+      return true
+    } 
+
+    if (!this.cells.some(c => c.parent === p.parent)) {
+      return true
+    } else {
+      return false
+    }
+  },
+
+  fitByType : function(p, i) {
+    let type = p.type;
     let candidate = [];
 
     // Check that all points in a item type size are available 
@@ -65,11 +84,11 @@ export let grid = {
     return candidate
   },
 
-  snapToGrid : function(d) { 
-    let gridpoint = grid.occupyNearest(d);
+  snapToGrid : function(p) { 
+    let gridpoint = grid.occupyNearest(p);
     if (gridpoint) {            
-        d.x = gridpoint.x;
-        d.y = gridpoint.y;
+        p.x = gridpoint.x;
+        p.y = gridpoint.y;
       }
   },
 
@@ -80,14 +99,20 @@ export let grid = {
 
     for(var i = 0; i < this.cells.length; i++) {
       
-      if((d = this.sqdist(p, this.cells[i])) < minDist && Array.isArray(this.fitToType(p, i))) {
-        minDist = d;
-        candidate = this.fitToType(p, i);
-        //console.log('before',candidate)
+      if((d = this.sqdist(p, this.cells[i])) < minDist) {
+        if (Array.isArray(this.fitByType(p, i))) {
+          minDist = d;
+          candidate = this.fitByType(p, i);
+          //console.log('before',candidate)  
+        }
       }
     }
     if(candidate != false && candidate.length > 0) {
-      candidate.forEach(e => this.cells[e].occupied = true);
+      candidate.forEach(e => {
+        this.cells[e].occupied = true;
+        this.cells[e].pid = p.id;
+        this.cells[e].parent = p.parent;
+      });
       return this.cells[candidate[0]];
     }
     // const testCells = this.cells.filter(c => c.occupied == true);
