@@ -10,6 +10,6 @@ export function wrapNames(items) {
     textwrap.fontSize(nameFontSize[d.type]).width(nameWidth[d.type]);
     
     d.nameWrap = textwrap(name);
-    console.log(d.nameWrap)
+    
   })  
 }

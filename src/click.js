@@ -19,7 +19,7 @@ export function click(d) {
   d.children = newNodes;
   labelsArray.push(d);
 
-  console.log('clicked item: ',d)
+  // console.log('clicked item: ',d)
 
   // Remove the clicked parent item
   for( var i = 0; i < items.length; i++){ 
@@ -35,7 +35,7 @@ export function click(d) {
        
   });
   update(); 
-  items.forEach(n => console.log(n.name, n.x, n.y));
+  // items.forEach(n => console.log(n.name, n.x, n.y));
 }
 
 

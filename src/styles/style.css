@@ -5,7 +5,7 @@ html, body {
   overflow: hidden;
 }
 
-svg {
+svg.main {
   position: fixed;
   top: 0;
   bottom: 0;

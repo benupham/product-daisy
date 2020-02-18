@@ -30,6 +30,7 @@ const zoomHeight = -(GRID_HEIGHT * GRID_UNIT_SIZE/2);
 
 // Add SVG canvas and zoom effect
 export const svg = d3.select("body").append("svg")
+  .attr("class", "main")
   .attr("width", "100%")
   .attr("height", "100%")
   .call(zoom)

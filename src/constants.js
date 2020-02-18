@@ -1,4 +1,4 @@
-export const imagesURL = window.location.href === "http://0.0.0.0:3000/" ? "./images/" : "https://s3-us-west-1.amazonaws.com/consumerland/";
+export const imagesURL = "./images/";// window.location.href === "http://0.0.0.0:3000/" ? "./images/" : "https://s3-us-west-1.amazonaws.com/consumerland/";
 
 export const GRID_WIDTH = 150;
 export const GRID_HEIGHT = 150;

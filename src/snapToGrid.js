@@ -1,3 +1,4 @@
+import * as d3 from 'd3';
 import { GRID_WIDTH, GRID_HEIGHT, GRID_UNIT_SIZE, typeSize } from "./constants";
 
 /* 
@@ -38,16 +39,28 @@ export let grid = {
     return Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2);
   },
 
+
   checkNeighbor : function(p, i) {
-    if (this.cells[i + GRID_HEIGHT].parent === p.parent) {
+    const width = typeSize[p.type][0];
+    const height = typeSize[p.type][1];
+    
+    if (this.cells[i - GRID_HEIGHT].parent === p.parent) {
       return true
-    } else if (this.cells[i - GRID_HEIGHT].parent === p.parent) {
+    } else if (this.cells[i + width * GRID_HEIGHT].parent === p.parent) {
       return true
+    // } else if (this.cells[i + width * GRID_HEIGHT + 1].parent === p.parent) {
+    //   return true
+    // } else if (this.cells[i + width * GRID_HEIGHT - 1].parent === p.parent) {
+    //   return true
     } else if (this.cells[i + 1].parent === p.parent) {
       return true
     } else if (this.cells[i - 1].parent === p.parent) {
       return true
-    } 
+    // } else if (this.cells[i - GRID_HEIGHT + 1].parent === p.parent) {
+    //   return true
+    // } else if (this.cells[i - GRID_HEIGHT - 1].parent === p.parent) {
+    //   return true
+    }  
 
     if (!this.cells.some(c => c.parent === p.parent)) {
       return true
@@ -59,7 +72,7 @@ export let grid = {
   fitByType : function(p, i) {
     let type = p.type;
     let candidate = [];
-
+    
     // Check that all points in a item type size are available 
     // TODO: change to use reduce()
     loop1 : // named loops can be broken by nested loop break commands
@@ -85,7 +98,10 @@ export let grid = {
   },
 
   snapToGrid : function(p) { 
-    let gridpoint = grid.occupyNearest(p);
+    if (this.cells.some(c => c.pid === p.id)) {
+      return 
+    }
+    let gridpoint = this.occupyNearest(p);
     if (gridpoint) {            
         p.x = gridpoint.x;
         p.y = gridpoint.y;
@@ -97,14 +113,24 @@ export let grid = {
     var d;
     let candidate = false;
 
+    // let quadtree = d3.quadtree().x(d => d.x).y(d => d.y);
+
     for(var i = 0; i < this.cells.length; i++) {
       
-      if((d = this.sqdist(p, this.cells[i])) < minDist) {
-        if (Array.isArray(this.fitByType(p, i))) {
-          minDist = d;
-          candidate = this.fitByType(p, i);
-          //console.log('before',candidate)  
-        }
+      if (
+          (d = this.sqdist(p, this.cells[i])) < minDist && 
+           Array.isArray(this.fitByType(p, i)) //&&
+          //  this.checkNeighbor(p, i)
+           ) {
+        // console.log('check the distance')
+        // if (this.checkNeighbor(p, i)) {
+        //   console.log('check neighbors')
+          // if () {
+            // console.log('fit by type')
+            minDist = d;
+            candidate = this.fitByType(p, i);  
+          // }
+        // }
       }
     }
     if(candidate != false && candidate.length > 0) {
