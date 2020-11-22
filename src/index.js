@@ -9,7 +9,7 @@ import {click, labelsArray} from './click';
 import {zoom} from './zoom';
 import { textFormatter } from './utilities';
 import { imageSize, imagePosition, nameFontSize, nameAnchor, nameAlignment, namePosition, strokeColor, imagesURL, rectPosition, rectFill, rectSize, rectFilter, nameWidth, nameMaxLen, typePixelSize } from './constants';
-import { grid } from './snapToGrid';
+import { grid } from './groupToGrid';
 import { GRID_WIDTH, GRID_UNIT_SIZE, GRID_HEIGHT } from './constants';
 import { wrapNames } from './sizeText';
 
@@ -20,6 +20,7 @@ export const subdepts = [];
 export const brands = [];
 export const products = [];
 export let items = [];
+export let itemsByGroup = [];
 
 export const width = GRID_WIDTH * GRID_UNIT_SIZE;
 export const height = GRID_HEIGHT * GRID_UNIT_SIZE;
@@ -42,12 +43,15 @@ export const svg = d3.select("body").append("svg")
 
 var node = svg.selectAll('g.node'); 
 
+
 // Create nested objects for each product and dept in product set
+// TODO: This is a promise and should handled as such 
 d3.json("../data/productSet.json", function(error, root) {
-  console.log('root',root)
+  // console.log('root',root)
 
   root.forEach(d => {
     d.radius = imageSize[d.type]/2 * Math.SQRT2;
+    d.open = false; 
     if (d.type === 'dept') {
       depts.push(d);
     } else if (d.type === 'subdept') {  
@@ -59,25 +63,37 @@ d3.json("../data/productSet.json", function(error, root) {
     }
   });
 
-
+  // Start the departments at grid center
   depts.forEach( d=> {
     d.x = width/2;
     d.y = height/2;
   });
+
+  // Create the initial list of nodes
   items = depts;
-  console.log('items',items)
+  itemsByGroup.push(depts);
+
+  // Create the grid
+  grid.init();
+
+  // Arrange and style nodes on grid
   update();
 
 })
 
+
+
 // Start or restart     
 export function update() {
-  grid.init();
 
-  let t = d3.transition()
-  .duration(500);
+  // Position the newest group of items on the grid
+  grid.snapToGrid(itemsByGroup[0]);
+
+  // Add them to the nodes for styling
+  items.push(...itemsByGroup[0]);
+  //items.concat(itemsByGroup[0]);
+  // console.log('latest nodes',items)
   
-  items.forEach(d => grid.snapToGrid(d));
   wrapNames(items);
 
   node = node.data(items, function(d) { return d.id;})
@@ -182,8 +198,11 @@ export function update() {
   node = nodeEnter
     .merge(node)
   
+  let t = d3.transition()
+  .duration(500);  
+  
   node
-    .transition(t)  
+    // .transition(t)  
     .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
   
   // slowly fades the glow on the most recently added items  

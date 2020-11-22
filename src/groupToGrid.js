@@ -35,10 +35,25 @@ export let grid = {
       };
     };
   },
-    
-  sqdist : function(a, b) {
-    if (Array.isArray(a)) {a = a[0];};
+  
+  // TODO: Rewrite with reduce to find closest of any points
+  // in sub-grid (candidate)
+  sqdist : function(a, b) {    
     return Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2);
+  },
+
+  // Needs work! 
+  sqdist2 : function(parent, candidate) {
+
+    let a = parent;
+
+    return candidate.reduce((prev,current) => {
+      //let b = this.cells[prev];
+      let c = this.cells[current];
+      return this.sqdist(a, c) < prev ? this.sqdist(a, c) : prev
+    }, 9999999)
+
+
   },
 
   fitByType : function(i) {
@@ -60,12 +75,12 @@ export let grid = {
           if (this.cells[ypoint] && !this.cells[ypoint].occupied) {
             candidate.push(ypoint)
           } else {
-            candidate = [];
+            candidate = false;
             break loop1;
           }
         }
       } else {
-        candidate = []; 
+        candidate = false; 
         break loop1;
       } 
     }
@@ -120,7 +135,7 @@ export let grid = {
           for (let i = 0; i < itemGrid.length; i++) {
             const cell = itemGrid[i];
             const candidate = this.fitByType(cell);
-            if (candidate.length > 0) {
+            if (candidate) {
               // console.log(pr.name, candidate)
               candidate.forEach( e => {
                 this.cells[e].occupied = true;
@@ -170,7 +185,7 @@ export let grid = {
     for(var i = 0; i < this.cells.length; i++) {
       let candidate = this.fitByType(i);
       
-      if ((d = this.sqdist(p, this.cells[i])) < minDist && candidate.length > 0) { 
+      if (candidate && (d = this.sqdist(p[0], this.cells[i])) < minDist ) { 
         minDist = d;
         winner = candidate;
       }

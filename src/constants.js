@@ -11,7 +11,7 @@ export const typeSize = {
   "product" : [1,2],
   "brand" : [2,1],
   "subdept" : [2,1],
-  "dept" : [2,1]
+  "dept" : [2,2]
 }
 
 export const typePixelSize = {

@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../bachinthesubways"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../../Localdev/bens-sandbox"
+		}
+	],
+	"settings": {}
+}

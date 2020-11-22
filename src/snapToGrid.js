@@ -1,4 +1,3 @@
-import * as d3 from 'd3';
 import { GRID_WIDTH, GRID_HEIGHT, GRID_UNIT_SIZE, typeSize } from "./constants";
 
 /* 
@@ -39,7 +38,8 @@ export let grid = {
     return Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2);
   },
 
-
+  // Forces items of the same type to be next to each other.
+  // Not used. 
   checkNeighbor : function(p, i) {
     const width = typeSize[p.type][0];
     const height = typeSize[p.type][1];
@@ -118,18 +118,17 @@ export let grid = {
     for(var i = 0; i < this.cells.length; i++) {
       
       if (
-          (d = this.sqdist(p, this.cells[i])) < minDist && 
-           Array.isArray(this.fitByType(p, i)) //&&
-          //  this.checkNeighbor(p, i)
-           ) {
+        (d = this.sqdist(p, this.cells[i])) < minDist 
+        && Array.isArray(this.fitByType(p, i)) 
+        //  && this.checkNeighbor(p, i)
+      ) {
         // console.log('check the distance')
         // if (this.checkNeighbor(p, i)) {
-        //   console.log('check neighbors')
-          // if () {
+            // console.log('check neighbors')
+           
             // console.log('fit by type')
             minDist = d;
             candidate = this.fitByType(p, i);  
-          // }
         // }
       }
     }
@@ -146,5 +145,3 @@ export let grid = {
     return [0,0]
   }
 }
-
-//grid.init();
