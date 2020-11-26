@@ -36,22 +36,27 @@ export let grid = {
     };
   },
   
-  // TODO: Rewrite with reduce to find closest of any points
-  // in sub-grid (candidate)
+  resetCells : function(occupiedCells) {
+    occupiedCells.forEach(cellId =>{
+      this.cells[cellId].occupied = false;
+      this.cells[cellId].pid = null;
+      this.cells[cellId].parent = null;  
+    })
+  },
+
   sqdist : function(a, b) {    
     return Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2);
   },
 
-  // Needs work! 
+  // Finds the closest of any of the points in the sub-grid 
   sqdist2 : function(parent, candidate) {
 
     let a = parent;
 
     return candidate.reduce((prev,current) => {
-      //let b = this.cells[prev];
       let c = this.cells[current];
       return this.sqdist(a, c) < prev ? this.sqdist(a, c) : prev
-    }, 9999999)
+    }, 99999999)
 
 
   },
@@ -97,9 +102,18 @@ export let grid = {
 
       // Create a rectangle/square big enough to fit all the items 
       // in p...
+      // This needs to be rewritten to account for landscape vs. portrait
+      // orientation of products vs brands, subdept
+      let sqrt = Math.sqrt(p.length);
+      console.log('sqrt',sqrt)
       let type = p[0].type;
-      this.itemWidth = typeSize[type][0] * Math.ceil(Math.sqrt(p.length));
-      this.itemHeight = typeSize[type][1] * Math.ceil(Math.sqrt(p.length));
+      this.itemWidth = typeSize[type][0] * Math.round(sqrt);
+      if (p.length % sqrt == 0) {
+        this.itemHeight = typeSize[type][1] * Math.floor(sqrt);
+      } else {
+        this.itemHeight = typeSize[type][1] * Math.ceil(sqrt);
+      }
+      
       console.log('width and height',this.itemWidth, this.itemHeight)
       
     } else {
@@ -136,13 +150,18 @@ export let grid = {
             const cell = itemGrid[i];
             const candidate = this.fitByType(cell);
             if (candidate) {
-              // console.log(pr.name, candidate)
+              // the cells occupied by the item
+              pr.cells = [];
+
               candidate.forEach( e => {
                 this.cells[e].occupied = true;
-                this.cells[e].pi = p.id;
-                this.cells[e].parent = p.parent;
+                this.cells[e].pid = p[0].id;
+                this.cells[e].parent = p[0].parent;
+                pr.cells.push(e);
               });
               // console.log('cell', cell)
+              pr.ix = pr.x;
+              pr.iy = pr.y;
               pr.x = this.cells[cell].x;
               pr.y = this.cells[cell].y;
               break;
@@ -173,29 +192,26 @@ export let grid = {
     var d;
     let winner = [];
 
-    /* TODO: Rewrite as a search spiraling out from 
-    the location of the clicked parent item
-    instead of starting at the first cell in the grid
-    I guess this could be done by first finding the closest
-    cell to the cell of the parent and checking that.
-    The problem is also that the upper left corner of the 
-    sub-grid may not be the closest part of the sub-grid to the
-    parent.     
+    /* TODO: Rewrite as a search rippling out as
+    concentric circles from the clicked item, return
+    first match, rather than search through every grid coordinate.     
     */
     for(var i = 0; i < this.cells.length; i++) {
       let candidate = this.fitByType(i);
       
-      if (candidate && (d = this.sqdist(p[0], this.cells[i])) < minDist ) { 
+      if (candidate && (d = this.sqdist2(p[0], candidate)) < minDist ) { 
         minDist = d;
         winner = candidate;
       }
     }
-    if(winner.length > 0) {
+    if (winner.length > 0) {
 
       return winner
       
+    } else {
+      console.log('I guess the grid is full');
+      return false
     }
-    // it's the first item on the grid
-    //return [0,0]
+
   }
 }

@@ -75,7 +75,7 @@ d3.json("../data/productSet.json", function(error, root) {
 
   // Create the grid
   grid.init();
-
+  grid.snapToGrid(items);
   // Arrange and style nodes on grid
   update();
 
@@ -86,11 +86,7 @@ d3.json("../data/productSet.json", function(error, root) {
 // Start or restart     
 export function update() {
 
-  // Position the newest group of items on the grid
-  grid.snapToGrid(itemsByGroup[0]);
-
-  // Add them to the nodes for styling
-  items.push(...itemsByGroup[0]);
+  
   //items.concat(itemsByGroup[0]);
   // console.log('latest nodes',items)
   
@@ -194,16 +190,21 @@ export function update() {
     .attr("text-anchor", "middle")
     .attr('fill', '#111111')
     .attr("font-size", 16)
+  
+  nodeEnter
+    .attr("transform", function (d) { return "translate(" + d.ix + "," + d.iy + ") scale(.25)"; });
 
   node = nodeEnter
     .merge(node)
   
   let t = d3.transition()
-  .duration(500);  
-  
+  .duration(250);  
+
   node
-    // .transition(t)  
-    .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
+    //.attr("transform", function (d) { return "translate(" + d.ix + "," + d.iy + ")"; })
+    .transition(t)  
+    .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ") scale(1)"; })
+    //.attr("transform", "scale(1)");
   
   // slowly fades the glow on the most recently added items  
   document.getElementById("fade-to-grey").beginElement();
