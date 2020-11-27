@@ -1,30 +1,16 @@
 import * as d3 from 'd3';
 
-import {depts,subdepts,brands,products, items, update, svg, itemsByGroup} from './index';
+import {depts,subdepts,brands,products, items, update, zoomable, zoom, itemsByGroup} from './index';
 import {grid} from './groupToGrid';
 
 export const labelsArray = [];
 
-function removeDescendants(d) {
-  
-  // Remove the children of clicked parent item
-  for( var i = 0; i < items.length; i++){ 
-    if ( items[i].parent === d.id) {
-      console.log('removed ',items[i].name);
-      grid.resetCells(items[i].cells);
-      if (items[i].open) {
-        console.log('second level',items[i].name);
-        removeDescendants(items[i]);
-      }
-      items.splice(i, 1);
-      i--;
-    }
-  }
-  d.open = false;
-
-}
-
 export function click(d) {
+  d3.event.stopPropagation();
+  const clickPoint = d3.mouse(zoomable.node());
+  let clickTracker = document.getElementById("clickTracker");
+  clickTracker.innerHTML = "clicked: " + clickPoint[0] + ", " + clickPoint[1];
+
   if (d.open === true) {
    
     removeDescendants(d);
@@ -48,31 +34,56 @@ export function click(d) {
   
     console.log('new items: ',newItems);
   
-    const clickPoint = d3.mouse(this);
+    
     // Start the new nodes at click location
     newItems.forEach((n,i) => {
-        n.x = d.x + clickPoint[0];
-        n.y = d.y + clickPoint[1];  
+        n.x = clickPoint[0];
+        n.y = clickPoint[1];  
          
     });
     
-
-    
     itemsByGroup.unshift(newItems);
-    // console.log('newItems', newItems)
-    // console.log('itemsByGroup',itemsByGroup)
+
     // Position the newest group of items on the grid
     grid.snapToGrid(itemsByGroup[0]);
 
     // Add them to the nodes for styling
-    items.push(...itemsByGroup[0]);
-  
+    items.push(...itemsByGroup[0]);  
     
   }
 
   update(); 
+
+  const [[x0, y0], [x1, y1]] = grid.itemGridBounds;
+  console.log(x0,x1);
+
+
+  zoomable.transition().duration(750).call(
+    zoom.transform,
+    d3.zoomIdentity
+      // .translate(width / 2, height / 2)
+      // .scale(Math.min(8, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height)))
+      .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
+    d3.mouse(zoomable.node())
+  );
   
-  // items.forEach(n => console.log(n.name, n.x, n.y));
 }
 
+function removeDescendants(d) {
+  
+  // Remove the children of clicked parent item
+  for( var i = 0; i < items.length; i++){ 
+    if ( items[i].parent === d.id) {
+      console.log('removed ',items[i].name);
+      grid.resetCells(items[i].cells);
+      if (items[i].open) {
+        console.log('second level',items[i].name);
+        removeDescendants(items[i]);
+      }
+      items.splice(i, 1);
+      i--;
+    }
+  }
+  d.open = false;
 
+}

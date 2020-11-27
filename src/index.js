@@ -44,8 +44,9 @@ export var svg = d3.select("body").append("svg")
   .call(zoom)
   .call(zoom.transform, transform);
 
-var zoomable = svg  
+export var zoomable = svg  
   .append("g")
+  .attr("class", "zoomable")
   .attr("transform", transform);
 
 function zoomed() {  
@@ -99,14 +100,8 @@ d3.json("../data/productSet.json", function(error, root) {
 
 })
 
-
-
 // Start or restart     
 export function update() {
-
-  
-  //items.concat(itemsByGroup[0]);
-  // console.log('latest nodes',items)
   
   wrapNames(items);
 
@@ -207,8 +202,8 @@ export function update() {
     .attr('fill', '#111111')
     .attr("font-size", 16)
   
-  nodeEnter
-    .attr("transform", function (d) { return "translate(" + d.ix + "," + d.iy + ") scale(.25)"; });
+  // nodeEnter
+    // .attr("transform", function (d) { return "translate(" + d.ix + "," + d.iy + ") scale(.25)"; });
   
   node = nodeEnter
     .merge(node)
@@ -217,7 +212,7 @@ export function update() {
   .duration(250);  
 
   node
-    .transition(t)  
+    // .transition(t)  
     .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ") scale(1)"; })
 
  
@@ -227,6 +222,7 @@ export function update() {
   document.getElementById("shrink").beginElement();
 
   node.on("click",click);
+
   
 }  
 

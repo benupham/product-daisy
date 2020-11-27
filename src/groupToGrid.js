@@ -95,15 +95,14 @@ export let grid = {
 
   itemWidth : 0,
   itemHeight : 0,
+  itemGridBounds : [],
 
   snapToGrid : function(p) { 
 
     if (Array.isArray(p)) {
 
       // Create a rectangle/square big enough to fit all the items 
-      // in p...
-      // This needs to be rewritten to account for landscape vs. portrait
-      // orientation of products vs brands, subdept
+      // in array of items p...
       let sqrt = Math.sqrt(p.length);
       console.log('sqrt',sqrt)
       let type = p[0].type;
@@ -119,27 +118,27 @@ export let grid = {
     } else {
       // I don't think this is ever called...? 
       console.log('p is not an array')
-      let type = p.type;
-      this.itemWidth = typeSize[type][0];
-      this.itemHeight = typeSize[type][1];  
-    
     }
 
     // Then find the closest spot for that rectangle. 
     let itemGrid = this.occupyNearest(p);
-    console.log(itemGrid);
+    console.log('item grid',itemGrid);
    
     if (itemGrid) {  
       // top left corner of this item grid, whether single
       // product or group
       // Don't think this is needed
-      let origin = itemGrid[0];   
+      this.itemGridBounds = 
+        [[this.cells[itemGrid[0]].x, 
+        this.cells[itemGrid[0]].y],
+        [this.cells[itemGrid[itemGrid.length-1]].x, 
+        this.cells[itemGrid[itemGrid.length-1]].y]];   
+      console.log('grid bounds:',this.itemGridBounds)  
 
       if (Array.isArray(p)) {
-        // console.log('itemGrid', itemGrid)
 
         // Now basically need to repeat the fitting process with
-        // the space inside the p grid 
+        // the space inside the itemgrid for all the items in p 
         p.forEach( pr => {
           // console.log('pr',pr)
           let type = pr.type;
@@ -170,19 +169,6 @@ export let grid = {
           }
 
         })
-      } else {
-        // I don't think this is ever called
-        // as only products would not be an array
-        // and they don't call update() on click
-        //console.log('not an array of p')
-        itemGrid.forEach(e => {
-          this.cells[e].occupied = true;
-          this.cells[e].pid = p.id;
-          this.cells[e].parent = p.parent;
-        }); 
-              
-        p.x = this.cells[origin].x;
-        p.y = this.cells[origin].y;
       }    
     }
   },
