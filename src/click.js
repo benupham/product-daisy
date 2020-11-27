@@ -48,13 +48,11 @@ export function click(d) {
   
     console.log('new items: ',newItems);
   
-  
-  
-    // Start the new nodes at the location of parent
+    const clickPoint = d3.mouse(this);
+    // Start the new nodes at click location
     newItems.forEach((n,i) => {
-        n.x = d.x;
-        n.y = d.y;
-        // items.unshift(n);   
+        n.x = d.x + clickPoint[0];
+        n.y = d.y + clickPoint[1];  
          
     });
     

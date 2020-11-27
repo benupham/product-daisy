@@ -33,6 +33,7 @@ const zoomHeight = -((GRID_HEIGHT * GRID_UNIT_SIZE) * (1-initialScale)/2);
 // Add SVG canvas and zoom effect
 // The <g> element that zooms must be adjusted negatively 
 // to align with the nodes which start centered in the grid. 
+// see https://stackoverflow.com/a/46437252
 export const transform = d3.zoomIdentity.translate(zoomWidth+700, zoomHeight+700).scale(initialScale);
 export const zoom = d3.zoom().scaleExtent([0.01,10]).on("zoom", zoomed);  
 
@@ -209,11 +210,8 @@ export function update() {
   nodeEnter
     .attr("transform", function (d) { return "translate(" + d.ix + "," + d.iy + ") scale(.25)"; });
   
- 
   node = nodeEnter
     .merge(node)
-  
-    
   
   let t = d3.transition()
   .duration(250);  
