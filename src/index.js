@@ -6,7 +6,7 @@ d3.forceAttract = forceAttract;
 d3.forceCluster = forceCluster;
 
 import {click, labelsArray} from './click';
-import {zoom} from './zoom';
+// import {zoom, transform} from './zoom';
 import { textFormatter } from './utilities';
 import { imageSize, imagePosition, nameFontSize, nameAnchor, nameAlignment, namePosition, strokeColor, imagesURL, rectPosition, rectFill, rectSize, rectFilter, nameWidth, nameMaxLen, typePixelSize } from './constants';
 import { grid } from './groupToGrid';
@@ -24,24 +24,41 @@ export let itemsByGroup = [];
 
 export const width = GRID_WIDTH * GRID_UNIT_SIZE;
 export const height = GRID_HEIGHT * GRID_UNIT_SIZE;
-const zoomWidth = -(GRID_WIDTH * GRID_UNIT_SIZE/2);
-const zoomHeight = -(GRID_HEIGHT * GRID_UNIT_SIZE/2);
+const initialScale = 0.5
+const zoomWidth = -((GRID_WIDTH * GRID_UNIT_SIZE) * (1-initialScale)/2);
+const zoomHeight = -((GRID_HEIGHT * GRID_UNIT_SIZE) * (1-initialScale)/2);
 
 
 
 // Add SVG canvas and zoom effect
-export const svg = d3.select("body").append("svg")
+// The <g> element that zooms must be adjusted negatively 
+// to align with the nodes which start centered in the grid. 
+export const transform = d3.zoomIdentity.translate(zoomWidth+700, zoomHeight+700).scale(initialScale);
+export const zoom = d3.zoom().scaleExtent([0.01,10]).on("zoom", zoomed);  
+
+export var svg = d3.select("body").append("svg")
   .attr("class", "main")
   .attr("width", "100%")
   .attr("height", "100%")
   .call(zoom)
+  .call(zoom.transform, transform);
+
+var zoomable = svg  
   .append("g")
-  .attr("transform", "translate(" + zoomWidth + "," + zoomHeight + ")");
+  .attr("transform", transform);
 
+function zoomed() {  
+  if (zoomable){
+    zoomable.attr("transform", d3.event.transform);
+    let zoomMeter = document.getElementById("zoomMeter");
+    zoomMeter.innerHTML = "zoom: " + d3.event.transform.k;
+  }
   
-  // .attr("transform", "translate(" + zoomWidth + "," + zoomHeight + ")")
+} 
 
-var node = svg.selectAll('g.node'); 
+
+
+var node = zoomable.selectAll('g.node'); 
 
 
 // Create nested objects for each product and dept in product set
@@ -113,7 +130,6 @@ export function update() {
     .attr("fill", d => rectFill[d.type])
     .attr("fill-opacity", 1)
     .attr("stroke", d => strokeColor[d.type])
-    //.transition(t)
     .attr("height", d => rectSize[d.type][1]) 
     .attr("width", d => rectSize[d.type][0])
 
@@ -124,7 +140,6 @@ export function update() {
     .attr("class", "item-image")
     .attr("x", d => imagePosition[d.type][0])
     .attr("y", d => imagePosition[d.type][1])
-    // .transition(t)
     .attr("height", d => imageSize[d.type] ) 
     .attr("width", d => imageSize[d.type])
     .attr("alignment-baseline", "middle")
@@ -193,18 +208,21 @@ export function update() {
   
   nodeEnter
     .attr("transform", function (d) { return "translate(" + d.ix + "," + d.iy + ") scale(.25)"; });
-
+  
+ 
   node = nodeEnter
     .merge(node)
+  
+    
   
   let t = d3.transition()
   .duration(250);  
 
   node
-    //.attr("transform", function (d) { return "translate(" + d.ix + "," + d.iy + ")"; })
     .transition(t)  
     .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ") scale(1)"; })
-    //.attr("transform", "scale(1)");
+
+ 
   
   // slowly fades the glow on the most recently added items  
   document.getElementById("fade-to-grey").beginElement();
