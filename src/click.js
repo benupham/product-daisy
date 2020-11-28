@@ -1,7 +1,8 @@
 import * as d3 from 'd3';
 
-import {depts,subdepts,brands,products, items, update, zoomable, zoom, itemsByGroup} from './index';
+import {depts,subdepts,brands,products, items, update, svg, zoomable, zoom, itemsByGroup} from './index';
 import {grid} from './groupToGrid';
+import { zoomIdentity } from 'd3';
 
 export const labelsArray = [];
 
@@ -51,21 +52,27 @@ export function click(d) {
     items.push(...itemsByGroup[0]);  
     
   }
-
+  
   update(); 
 
   const [[x0, y0], [x1, y1]] = grid.itemGridBounds;
   console.log(x0,x1);
 
-
-  zoomable.transition().duration(750).call(
+  
+  svg.transition().duration(500).call(
     zoom.transform,
     d3.zoomIdentity
       // .translate(width / 2, height / 2)
-      // .scale(Math.min(8, 0.9 / Math.max((x1 - x0) / width, (y1 - y0) / height)))
-      .translate(-(x0 + x1) / 2, -(y0 + y1) / 2),
-    d3.mouse(zoomable.node())
+      .scale(0.5)
+      .translate(-(x0 + x1) / 2 + 700, -(y0 + y1) / 2 + 700)
+    // d3.mouse(zoomable.node())
   );
+  // var newtrans = d3.zoomIdentity
+  //     // .translate(width / 2, height / 2)
+  //     .scale(0.5)
+  //     .translate(-(x0 + x1) / 2 + 700, -(y0 + y1) / 2 + 700)
+  // zoomable.attr("transform",newtrans);
+  // zoomable.attr("transform",transform);
   
 }
 

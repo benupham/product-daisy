@@ -39,8 +39,8 @@ export const zoom = d3.zoom().scaleExtent([0.01,10]).on("zoom", zoomed);
 
 export var svg = d3.select("body").append("svg")
   .attr("class", "main")
-  .attr("width", "100%")
-  .attr("height", "100%")
+  .attr("width", window.innerWidth)
+  .attr("height", window.innerHeight)
   .call(zoom)
   .call(zoom.transform, transform);
 
