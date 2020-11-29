@@ -41,6 +41,7 @@ export var svg = d3.select("body").append("svg")
   .attr("class", "main")
   .attr("width", window.innerWidth)
   .attr("height", window.innerHeight)
+  .on("mouseover", onMouseOver)
   .call(zoom)
   .call(zoom.transform, transform);
 
@@ -55,8 +56,14 @@ function zoomed() {
     let zoomMeter = document.getElementById("zoomMeter");
     zoomMeter.innerHTML = "zoom: " + d3.event.transform.k;
   }
-  
 } 
+
+function onMouseOver() {
+  let coordinates = d3.mouse(zoomable.node());
+  
+  let mouseTracker = document.getElementById("mouseTracker");
+  mouseTracker.innerHTML = "mouse position: " + coordinates[0] + ", " + coordinates[1];
+}
 
 
 

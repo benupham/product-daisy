@@ -63,10 +63,10 @@ export let grid = {
 
   fitByType : function(i) {
     //Instead of using the item (p) width/height, that is 
-    // set with the itemWidth/Height properties
+    // set with the itemsWidth/Height properties
     let candidate = [];
-    let theWidth = this.itemWidth;
-    let theHeight = this.itemHeight; 
+    let theWidth = this.itemsWidth;
+    let theHeight = this.itemsHeight; 
     
     // Check that all points in a item type size are available 
     // TODO: change to use reduce()
@@ -93,9 +93,11 @@ export let grid = {
     return candidate
   },
 
-  itemWidth : 0,
-  itemHeight : 0,
-  itemGridBounds : [],
+  itemsWidth : 0,
+  itemsHeight : 0,
+  itemsGridBounds : [],
+  itemsType : null,
+  itemsSize : [],
 
   snapToGrid : function(p) { 
 
@@ -106,14 +108,16 @@ export let grid = {
       let sqrt = Math.sqrt(p.length);
       console.log('sqrt',sqrt)
       let type = p[0].type;
-      this.itemWidth = typeSize[type][0] * Math.round(sqrt);
+      //TODO: itemHeight should never be more than 10 units
+      // regardless of the number of items in the group. 
+      this.itemsWidth = typeSize[type][0] * Math.round(sqrt);
       if (p.length % sqrt == 0) {
-        this.itemHeight = typeSize[type][1] * Math.floor(sqrt);
+        this.itemsHeight = typeSize[type][1] * Math.floor(sqrt);
       } else {
-        this.itemHeight = typeSize[type][1] * Math.ceil(sqrt);
+        this.itemsHeight = typeSize[type][1] * Math.ceil(sqrt);
       }
       
-      console.log('width and height',this.itemWidth, this.itemHeight)
+      console.log('width and height',this.itemsWidth, this.itemsHeight)
       
     } else {
       // I don't think this is ever called...? 
@@ -121,32 +125,34 @@ export let grid = {
     }
 
     // Then find the closest spot for that rectangle. 
-    let itemGrid = this.occupyNearest(p);
-    console.log('item grid',itemGrid);
+    let itemsGrid = this.occupyNearest(p);
+    console.log('item grid',itemsGrid);
+
+    this.itemsType = p[0].type; 
+    this.itemsSize = typeSize[this.itemsType];
+    console.log("items size",this.itemsSize)
    
-    if (itemGrid) {  
-      // top left corner of this item grid, whether single
-      // product or group
-      // Don't think this is needed
-      this.itemGridBounds = 
-        [[this.cells[itemGrid[0]].x, 
-        this.cells[itemGrid[0]].y],
-        [this.cells[itemGrid[itemGrid.length-1]].x, 
-        this.cells[itemGrid[itemGrid.length-1]].y]];   
-      console.log('grid bounds:',this.itemGridBounds)  
+    if (itemsGrid) {  
+      
+      this.itemsGridBounds = 
+        [[this.cells[itemsGrid[0]].x, 
+        this.cells[itemsGrid[0]].y],
+        [this.cells[itemsGrid[itemsGrid.length-1]].x + this.itemsSize[0] * GRID_UNIT_SIZE, 
+        this.cells[itemsGrid[itemsGrid.length-1]].y + this.itemsSize[1] * GRID_UNIT_SIZE]];   
+      console.log('grid bounds:',this.itemsGridBounds)  
 
       if (Array.isArray(p)) {
 
         // Now basically need to repeat the fitting process with
-        // the space inside the itemgrid for all the items in p 
+        // the space inside the itemsgrid for all the items in p 
         p.forEach( pr => {
           // console.log('pr',pr)
           let type = pr.type;
-          this.itemWidth = typeSize[type][0];
-          this.itemHeight = typeSize[type][1]; 
+          this.itemsWidth = typeSize[type][0];
+          this.itemsHeight = typeSize[type][1]; 
 
-          for (let i = 0; i < itemGrid.length; i++) {
-            const cell = itemGrid[i];
+          for (let i = 0; i < itemsGrid.length; i++) {
+            const cell = itemsGrid[i];
             const candidate = this.fitByType(cell);
             if (candidate) {
               // the cells occupied by the item

@@ -49,30 +49,29 @@ export function click(d) {
     grid.snapToGrid(itemsByGroup[0]);
 
     // Add them to the nodes for styling
-    items.push(...itemsByGroup[0]);  
+    items.push(...itemsByGroup[0]); 
     
+    const [[x0, y0], [x1, y1]] = grid.itemsGridBounds;
+    
+    // https://bl.ocks.org/iamkevinv/0a24e9126cd2fa6b283c6f2d774b69a2
+    var dx = x1 - x0,
+      dy = y1 - y0,
+      x = (x0 + x1) / 2,
+      y = (y0 + y1) / 2,
+      scale = Math.min(0.9, Math.min(8, 0.9 / Math.max(dx / window.innerWidth, dy / window.innerHeight))),
+      translate = [window.innerWidth / 2 - scale * x, window.innerHeight / 2 - scale * y];
+    
+    svg.transition().duration(750).call(
+      zoom.transform,
+      d3.zoomIdentity
+        .translate(translate[0], translate[1]).scale(scale)
+    );
+      
   }
   
   update(); 
 
-  const [[x0, y0], [x1, y1]] = grid.itemGridBounds;
-  console.log(x0,x1);
-
   
-  svg.transition().duration(500).call(
-    zoom.transform,
-    d3.zoomIdentity
-      // .translate(width / 2, height / 2)
-      .scale(0.5)
-      .translate(-(x0 + x1) / 2 + 700, -(y0 + y1) / 2 + 700)
-    // d3.mouse(zoomable.node())
-  );
-  // var newtrans = d3.zoomIdentity
-  //     // .translate(width / 2, height / 2)
-  //     .scale(0.5)
-  //     .translate(-(x0 + x1) / 2 + 700, -(y0 + y1) / 2 + 700)
-  // zoomable.attr("transform",newtrans);
-  // zoomable.attr("transform",transform);
   
 }
 
