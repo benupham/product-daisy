@@ -6,14 +6,16 @@ d3.forceAttract = forceAttract;
 d3.forceCluster = forceCluster;
 
 import {click, labelsArray} from './click';
-// import {zoom, transform} from './zoom';
+import {zoom, transform, zoomToBounds} from './zoom';
 import { textFormatter } from './utilities';
 import { imageSize, imagePosition, nameFontSize, nameAnchor, nameAlignment, namePosition, strokeColor, imagesURL, rectPosition, rectFill, rectSize, rectFilter, nameWidth, nameMaxLen, typePixelSize } from './constants';
 import { grid } from './groupToGrid';
 import { GRID_WIDTH, GRID_UNIT_SIZE, GRID_HEIGHT } from './constants';
 import { wrapNames } from './sizeText';
+import { onMouseOver} from './devTools';
 
 import './styles/style.css';
+import { addImages, addName, styleRectWrap } from './svgStyles';
 
 export const depts = [];
 export const subdepts = [];
@@ -22,61 +24,27 @@ export const products = [];
 export let items = [];
 export let itemsByGroup = [];
 
-export const width = GRID_WIDTH * GRID_UNIT_SIZE;
-export const height = GRID_HEIGHT * GRID_UNIT_SIZE;
-const initialScale = 0.5
-const zoomWidth = -((GRID_WIDTH * GRID_UNIT_SIZE) * (1-initialScale)/2);
-const zoomHeight = -((GRID_HEIGHT * GRID_UNIT_SIZE) * (1-initialScale)/2);
-
-
-
-// Add SVG canvas and zoom effect
-// The <g> element that zooms must be adjusted negatively 
-// to align with the nodes which start centered in the grid. 
-// see https://stackoverflow.com/a/46437252
-export const transform = d3.zoomIdentity.translate(zoomWidth+700, zoomHeight+700).scale(initialScale);
-export const zoom = d3.zoom().scaleExtent([0.01,10]).on("zoom", zoomed);  
-
-export var svg = d3.select("body").append("svg")
+// The container for all the action.
+export const svg = d3.select("body").append("svg")
   .attr("class", "main")
   .attr("width", window.innerWidth)
   .attr("height", window.innerHeight)
-  .on("mouseover", onMouseOver)
-  .call(zoom)
-  .call(zoom.transform, transform);
+  .call(zoom);
 
-export var zoomable = svg  
+// The <g> element that does the zooming.
+export const zoomable = svg  
   .append("g")
-  .attr("class", "zoomable")
-  .attr("transform", transform);
+  .attr("class", "zoomable");
 
-function zoomed() {  
-  if (zoomable){
-    zoomable.attr("transform", d3.event.transform);
-    let zoomMeter = document.getElementById("zoomMeter");
-    zoomMeter.innerHTML = "zoom: " + d3.event.transform.k;
-  }
-} 
-
-function onMouseOver() {
-  let coordinates = d3.mouse(zoomable.node());
+svg.call(zoom.transform, transform);  
   
-  let mouseTracker = document.getElementById("mouseTracker");
-  mouseTracker.innerHTML = "mouse position: " + coordinates[0] + ", " + coordinates[1];
-}
-
-
-
-var node = zoomable.selectAll('g.node'); 
+let node = zoomable.selectAll('g.node'); 
 
 
 // Create nested objects for each product and dept in product set
-// TODO: This is a promise and should handled as such 
 d3.json("../data/productSet.json", function(error, root) {
-  // console.log('root',root)
 
   root.forEach(d => {
-    d.radius = imageSize[d.type]/2 * Math.SQRT2;
     d.open = false; 
     if (d.type === 'dept') {
       depts.push(d);
@@ -89,25 +57,31 @@ d3.json("../data/productSet.json", function(error, root) {
     }
   });
 
-  // Start the departments at grid center
-  depts.forEach( d=> {
-    d.x = width/2;
-    d.y = height/2;
-  });
+  appInit();
 
+})
+
+function appInit() {
   // Create the initial list of nodes
   items = depts;
   itemsByGroup.push(depts);
 
-  // Create the grid
+  // Start the departments at grid center
+  depts.forEach( d=> {
+    d.x = GRID_WIDTH * GRID_UNIT_SIZE/2;
+    d.y = GRID_HEIGHT * GRID_UNIT_SIZE/2;
+  });
+
+  // Create the grid and zoom to it.
   grid.init();
   grid.snapToGrid(items);
+  zoomToBounds(grid.itemsGridBounds);
   // Arrange and style nodes on grid
   update();
+  
+}
 
-})
-
-// Start or restart     
+// Start or restart rendering of svgs    
 export function update() {
   
   wrapNames(items);
@@ -125,55 +99,13 @@ export function update() {
     .attr("name", function (d) { return d.name; })
 
   // Append a rectangle background
-  nodeEnter.append("rect")
-    .attr("name", function (d) { return d.name; })
-    .attr("class", "wrap")
-    .attr("x", d => rectPosition[d.type][0])
-    .attr("y", d=> rectPosition[d.type][1])
-    .attr("fill", d => rectFill[d.type])
-    .attr("fill-opacity", 1)
-    .attr("stroke", d => strokeColor[d.type])
-    .attr("height", d => rectSize[d.type][1]) 
-    .attr("width", d => rectSize[d.type][0])
-
+  styleRectWrap(nodeEnter);
   // Append images
-  nodeEnter.append("image")
-    .attr("xlink:href", function (d) { return imagesURL + (d.img || "product-images/missing-item.jpg"); })
-    .attr("name", function (d) { return d.name; })
-    .attr("class", "item-image")
-    .attr("x", d => imagePosition[d.type][0])
-    .attr("y", d => imagePosition[d.type][1])
-    .attr("height", d => imageSize[d.type] ) 
-    .attr("width", d => imageSize[d.type])
-    .attr("alignment-baseline", "middle")
+  addImages(nodeEnter);
 
-  // Append name 
-  var nodeEnterText = nodeEnter.append("text")
-    .attr("class", "name name-line1")
-    .attr("text-anchor", d => nameAnchor[d.type])
-    .attr("alignment-baseline", d => d.nameWrap.lines.length > 1 ? "start" : "middle")
-    .attr("x", d => namePosition[d.type][0])
-    .attr("y", d => d.nameWrap.lines.length > 1 ? namePosition[d.type][1] - nameFontSize[d.type]/5 : namePosition[d.type][1])
-    .attr("font-size", d => nameFontSize[d.type])
-    .attr("fill", "#464646")
-    .text(d =>  d.nameWrap.lines[0]);
-    
-  nodeEnterText.filter(d => d.nameWrap.lines[1])
-    .append("tspan")
-    .attr("class", "name name-line2")
-    .attr("x", d => namePosition[d.type][0])
-    .attr("y", d => namePosition[d.type][1] + nameFontSize[d.type])
-    .text(d =>  d.nameWrap.lines[1]);
-  
-  // Append price for products 
-  nodeEnterText.filter(d => d.type === "product")
-    .append("tspan")
-    .text(d =>  d.price)  
-    .attr("class", "price")
-    .attr("font-size", nameFontSize["product"])
-    .attr("fill", "#B12704")
-    .attr("x", d => namePosition[d.type][0])
-    .attr("dy", d => nameFontSize[d.type]*3);
+  addName(nodeEnter);
+
+ 
   
   // Append stars rating for products
   nodeEnter.filter(d => d.type === "product")

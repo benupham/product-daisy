@@ -55,7 +55,3 @@ function wrap(text, width) {
   });
 }
 
-export function jiggle() {
-  // something goes very wrong when I use this...
-  return (Math.random() - 0.5) * 1e-6;
-}

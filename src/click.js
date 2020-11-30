@@ -3,14 +3,16 @@ import * as d3 from 'd3';
 import {depts,subdepts,brands,products, items, update, svg, zoomable, zoom, itemsByGroup} from './index';
 import {grid} from './groupToGrid';
 import { zoomIdentity } from 'd3';
+import { clickTracker } from './devTools';
+import { zoomToBounds } from './zoom';
 
 export const labelsArray = [];
 
 export function click(d) {
+
   d3.event.stopPropagation();
-  const clickPoint = d3.mouse(zoomable.node());
-  let clickTracker = document.getElementById("clickTracker");
-  clickTracker.innerHTML = "clicked: " + clickPoint[0] + ", " + clickPoint[1];
+  let clickPoint = d3.mouse(zoomable.node());
+  clickTracker(clickPoint);
 
   if (d.open === true) {
    
@@ -35,7 +37,6 @@ export function click(d) {
   
     console.log('new items: ',newItems);
   
-    
     // Start the new nodes at click location
     newItems.forEach((n,i) => {
         n.x = clickPoint[0];
@@ -50,36 +51,19 @@ export function click(d) {
 
     // Add them to the nodes for styling
     items.push(...itemsByGroup[0]); 
-    
-    const [[x0, y0], [x1, y1]] = grid.itemsGridBounds;
-    
-    // https://bl.ocks.org/iamkevinv/0a24e9126cd2fa6b283c6f2d774b69a2
-    var dx = x1 - x0,
-      dy = y1 - y0,
-      x = (x0 + x1) / 2,
-      y = (y0 + y1) / 2,
-      scale = Math.min(0.9, Math.min(8, 0.9 / Math.max(dx / window.innerWidth, dy / window.innerHeight))),
-      translate = [window.innerWidth / 2 - scale * x, window.innerHeight / 2 - scale * y];
-    
-    svg.transition().duration(750).call(
-      zoom.transform,
-      d3.zoomIdentity
-        .translate(translate[0], translate[1]).scale(scale)
-    );
-      
+   
+    zoomToBounds(grid.itemsGridBounds);
   }
-  
+
   update(); 
 
-  
-  
 }
 
-function removeDescendants(d) {
+function removeDescendants(parent) {
   
   // Remove the children of clicked parent item
   for( var i = 0; i < items.length; i++){ 
-    if ( items[i].parent === d.id) {
+    if ( items[i].parent === parent.id) {
       console.log('removed ',items[i].name);
       grid.resetCells(items[i].cells);
       if (items[i].open) {
@@ -90,6 +74,9 @@ function removeDescendants(d) {
       i--;
     }
   }
-  d.open = false;
+  parent.open = false;
+  
+  zoomToBounds(parent.groupBounds);
 
 }
+

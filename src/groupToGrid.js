@@ -45,7 +45,8 @@ export let grid = {
   },
 
   sqdist : function(a, b) {    
-    return Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2);
+    // return Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2);
+    return Math.hypot(a.x - b.x, a.y - b.y);
   },
 
   // Finds the closest of any of the points in the sub-grid 
@@ -105,18 +106,37 @@ export let grid = {
 
       // Create a rectangle/square big enough to fit all the items 
       // in array of items p...
-      let sqrt = Math.sqrt(p.length);
-      console.log('sqrt',sqrt)
       let type = p[0].type;
+      let typeWidth = typeSize[type][0];
+      let typeHeight = typeSize[type][1];
+      let totalUnits = p.length * typeWidth * typeHeight;
+      let sqrt = Math.sqrt(totalUnits);
+
+      console.log('items',p.length,'totalunits', totalUnits, 'sqrt', sqrt);
+
       //TODO: itemHeight should never be more than 10 units
       // regardless of the number of items in the group. 
-      this.itemsWidth = typeSize[type][0] * Math.round(sqrt);
-      if (p.length % sqrt == 0) {
-        this.itemsHeight = typeSize[type][1] * Math.floor(sqrt);
+      // Also, need to compare the width/height after type size 
+      // has been accounted for.
+      if (typeWidth >= typeHeight) {
+        console.log('width >= height')
+        this.itemsWidth = Math.round(sqrt);
+        if (totalUnits % sqrt == 0) {
+          console.log('perfect square root')
+          this.itemsHeight = Math.round(sqrt);
+        } else {
+          this.itemsHeight = Math.ceil(sqrt) % typeHeight == 0 ? Math.ceil(sqrt) : Math.ceil(sqrt) + 1;
+        }
       } else {
-        this.itemsHeight = typeSize[type][1] * Math.ceil(sqrt);
+        console.log('height > width')
+        this.itemsHeight = Math.round(sqrt);
+        if (totalUnits % sqrt == 0) {
+          this.itemsWidth = Math.round(sqrt);
+        } else {
+          this.itemsWidth = Math.ceil(sqrt) % typeWidth == 0 ? Math.ceil(sqrt) : Math.ceil(sqrt) + 1;
+        }
       }
-      
+
       console.log('width and height',this.itemsWidth, this.itemsHeight)
       
     } else {
@@ -137,6 +157,8 @@ export let grid = {
       this.itemsGridBounds = 
         [[this.cells[itemsGrid[0]].x, 
         this.cells[itemsGrid[0]].y],
+        // these corners of the bounds take account
+        // of the fact that items are irregular sizes
         [this.cells[itemsGrid[itemsGrid.length-1]].x + this.itemsSize[0] * GRID_UNIT_SIZE, 
         this.cells[itemsGrid[itemsGrid.length-1]].y + this.itemsSize[1] * GRID_UNIT_SIZE]];   
       console.log('grid bounds:',this.itemsGridBounds)  
@@ -146,7 +168,7 @@ export let grid = {
         // Now basically need to repeat the fitting process with
         // the space inside the itemsgrid for all the items in p 
         p.forEach( pr => {
-          // console.log('pr',pr)
+          
           let type = pr.type;
           this.itemsWidth = typeSize[type][0];
           this.itemsHeight = typeSize[type][1]; 
@@ -169,6 +191,7 @@ export let grid = {
               pr.iy = pr.y;
               pr.x = this.cells[cell].x;
               pr.y = this.cells[cell].y;
+              pr.groupBounds = this.itemsGridBounds;
               break;
             }
             

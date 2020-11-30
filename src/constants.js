@@ -6,7 +6,6 @@ export const GRID_HEIGHT = 150;
 export const GRID_UNIT_SIZE = 200; 
 const UNIT_MARGIN = 25;
 
-
 export const typeSize = {
   "product" : [1,2],
   "brand" : [2,1],
