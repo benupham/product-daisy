@@ -106,34 +106,36 @@ export let grid = {
 
       // Create a rectangle/square big enough to fit all the items 
       // in array of items p...
-      let type = p[0].type;
-      let typeWidth = typeSize[type][0];
-      let typeHeight = typeSize[type][1];
+      let typeWidth = typeSize[p[0].type][0];
+      let typeHeight = typeSize[p[0].type][1];
       let totalUnits = p.length * typeWidth * typeHeight;
-      let sqrt = Math.sqrt(totalUnits);
+      let sqrt = Math.floor(Math.sqrt(p.length));
 
-      console.log('items',p.length,'totalunits', totalUnits, 'sqrt', sqrt);
-
-      //TODO: itemHeight should never be more than 10 units
-      // regardless of the number of items in the group. 
-      // Also, need to compare the width/height after type size 
-      // has been accounted for.
       if (typeWidth >= typeHeight) {
         console.log('width >= height')
-        this.itemsWidth = Math.round(sqrt);
-        if (totalUnits % sqrt == 0) {
-          console.log('perfect square root')
-          this.itemsHeight = Math.round(sqrt);
-        } else {
-          this.itemsHeight = Math.ceil(sqrt) % typeHeight == 0 ? Math.ceil(sqrt) : Math.ceil(sqrt) + 1;
+        let itemsWidthUnits = sqrt * typeWidth;
+        console.log('items',p.length,'totalunits', totalUnits, 'sqrt', sqrt, 'width in units',itemsWidthUnits);
+        for (let i = 0; i < totalUnits; i++) {
+          if (itemsWidthUnits * i * typeHeight >= totalUnits) {
+            this.itemsHeight = i * typeHeight;
+            this.itemsWidth = itemsWidthUnits;
+            console.log(this.itemsWidth)
+            break;
+          } 
         }
       } else {
         console.log('height > width')
-        this.itemsHeight = Math.round(sqrt);
-        if (totalUnits % sqrt == 0) {
-          this.itemsWidth = Math.round(sqrt);
-        } else {
-          this.itemsWidth = Math.ceil(sqrt) % typeWidth == 0 ? Math.ceil(sqrt) : Math.ceil(sqrt) + 1;
+        
+        // Push product groups to be wider than tall.
+        let itemsHeightUnits = Math.max(sqrt-1,1) * typeHeight;
+        console.log('items',p.length,'totalunits', totalUnits, 'sqrt', sqrt, 'height in units',itemsHeightUnits);
+        for (let i = 0; i < totalUnits; i++) {
+          if (itemsHeightUnits * i * typeWidth >= totalUnits) {
+            this.itemsWidth = i * typeWidth;
+            this.itemsHeight = itemsHeightUnits;
+            console.log(this.itemsWidth)
+            break;
+          } 
         }
       }
 
