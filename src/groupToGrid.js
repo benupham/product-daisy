@@ -44,25 +44,7 @@ export let grid = {
     })
   },
 
-  sqdist : function(a, b) {    
-    // return Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2);
-    return Math.hypot(a.x - b.x, a.y - b.y);
-  },
-
-  // Finds the closest of any of the points in the sub-grid 
-  sqdist2 : function(parent, candidate) {
-
-    let a = parent;
-
-    return candidate.reduce((prev,current) => {
-      let c = this.cells[current];
-      return this.sqdist(a, c) < prev ? this.sqdist(a, c) : prev
-    }, 99999999)
-
-
-  },
-
-  fitByType : function(i) {
+  fitByType : function(cell) {
     //Instead of using the item (p) width/height, that is 
     // set with the itemsWidth/Height properties
     let candidate = [];
@@ -73,7 +55,7 @@ export let grid = {
     // TODO: change to use reduce()
     loop1 : // named loops can be broken by nested loop break commands
     for (let width = 0; width < theWidth; width++) {
-      let xpoint = i + (width * GRID_HEIGHT); 
+      let xpoint = cell + (width * GRID_HEIGHT); 
       if (this.cells[xpoint] && !this.cells[xpoint].occupied) {
         candidate.push(xpoint);
         for (let height = 1; height < theHeight; height++) {
@@ -94,9 +76,9 @@ export let grid = {
     return candidate
   },
 
-  itemsWidth : 0,
+  itemsWidth : 0, // these should probaby not be on the class
   itemsHeight : 0,
-  itemsGridBounds : [],
+  groupGridBounds : [],
   itemsType : null,
   itemsSize : [],
 
@@ -111,22 +93,22 @@ export let grid = {
       let totalUnits = p.length * typeWidth * typeHeight;
       let sqrt = Math.floor(Math.sqrt(p.length));
 
-      if (typeWidth >= typeHeight) {
-        console.log('width >= height')
+      if (typeWidth > typeHeight) {
+        // console.log('width >= height')
         let itemsWidthUnits = sqrt * typeWidth;
         console.log('items',p.length,'totalunits', totalUnits, 'sqrt', sqrt, 'width in units',itemsWidthUnits);
         for (let i = 0; i < totalUnits; i++) {
           if (itemsWidthUnits * i * typeHeight >= totalUnits) {
             this.itemsHeight = i * typeHeight;
             this.itemsWidth = itemsWidthUnits;
-            console.log(this.itemsWidth)
+            // console.log(this.itemsWidth)
             break;
           } 
         }
       } else {
         console.log('height > width')
         
-        // Push product groups to be wider than tall.
+        // Force product groups to be wider than tall.
         let itemsHeightUnits = Math.max(sqrt-1,1) * typeHeight;
         console.log('items',p.length,'totalunits', totalUnits, 'sqrt', sqrt, 'height in units',itemsHeightUnits);
         for (let i = 0; i < totalUnits; i++) {
@@ -138,70 +120,90 @@ export let grid = {
           } 
         }
       }
-
-      console.log('width and height',this.itemsWidth, this.itemsHeight)
       
-    } else {
-      // I don't think this is ever called...? 
-      console.log('p is not an array')
-    }
+      // Then find the closest spot for that containing rectangle. 
+      let groupGrid = this.occupyNearest(p);
+      console.log('item grid',groupGrid);
 
-    // Then find the closest spot for that rectangle. 
-    let itemsGrid = this.occupyNearest(p);
-    console.log('item grid',itemsGrid);
-
-    this.itemsType = p[0].type; 
-    this.itemsSize = typeSize[this.itemsType];
-    console.log("items size",this.itemsSize)
-   
-    if (itemsGrid) {  
+      this.itemsType = p[0].type; 
+      this.itemsSize = typeSize[this.itemsType];
+      console.log("items size",this.itemsSize)
       
-      this.itemsGridBounds = 
-        [[this.cells[itemsGrid[0]].x, 
-        this.cells[itemsGrid[0]].y],
+      // Define the size of the rect of items
+      this.groupGridBounds = 
+        [[this.cells[groupGrid[0]].x, 
+        this.cells[groupGrid[0]].y],
         // these corners of the bounds take account
         // of the fact that items are irregular sizes
-        [this.cells[itemsGrid[itemsGrid.length-1]].x + this.itemsSize[0] * GRID_UNIT_SIZE, 
-        this.cells[itemsGrid[itemsGrid.length-1]].y + this.itemsSize[1] * GRID_UNIT_SIZE]];   
-      console.log('grid bounds:',this.itemsGridBounds)  
+        [this.cells[groupGrid[groupGrid.length-1]].x + this.itemsSize[0] * GRID_UNIT_SIZE, 
+        this.cells[groupGrid[groupGrid.length-1]].y + this.itemsSize[1] * GRID_UNIT_SIZE]];   
+      console.log('grid bounds:',this.groupGridBounds)  
 
-      if (Array.isArray(p)) {
+      // Now basically need to repeat the fitting process with
+      // the space inside the containing rectangle for all the children of 
+      // the clicked parent p 
+      p.forEach( pr => {
+        
+        let type = pr.type;
+        this.itemsWidth = typeSize[type][0];
+        this.itemsHeight = typeSize[type][1]; 
 
-        // Now basically need to repeat the fitting process with
-        // the space inside the itemsgrid for all the items in p 
-        p.forEach( pr => {
-          
-          let type = pr.type;
-          this.itemsWidth = typeSize[type][0];
-          this.itemsHeight = typeSize[type][1]; 
+        for (let i = 0; i < groupGrid.length; i++) {
+          const groupCell = groupGrid[i];
+          const candidate = this.fitByType(groupCell);
+          if (candidate) {
 
-          for (let i = 0; i < itemsGrid.length; i++) {
-            const cell = itemsGrid[i];
-            const candidate = this.fitByType(cell);
-            if (candidate) {
-              // the cells occupied by the item
-              pr.cells = [];
+            this.placeItem(pr, candidate, groupCell);
 
-              candidate.forEach( e => {
-                this.cells[e].occupied = true;
-                this.cells[e].pid = p[0].id;
-                this.cells[e].parent = p[0].parent;
-                pr.cells.push(e);
-              });
-              // console.log('cell', cell)
-              pr.ix = pr.x;
-              pr.iy = pr.y;
-              pr.x = this.cells[cell].x;
-              pr.y = this.cells[cell].y;
-              pr.groupBounds = this.itemsGridBounds;
-              break;
-            }
-            
+            break;
           }
+          
+        }
 
-        })
-      }    
+      })
+        
+
+    } else {
+      // for fitting individual items (promos)
+      console.log('p is not an array')
+
+      let type = p.type;
+      this.itemsWidth = typeSize[type][0];
+      this.itemsHeight = typeSize[type][1];
+      this.itemsType = type; 
+      this.itemsSize = typeSize[type];
+
+      let candidate = this.occupyNearest(p);
+      this.placeItem(p, candidate);
+
     }
+
+  },
+
+  placeItem : function(item, locationCells, groupCell = null) {
+
+    // the cells occupied by the item
+    item.cells = [];
+
+    locationCells.forEach( e => {
+      this.cells[e].occupied = true;
+      this.cells[e].pid = item.id;
+      this.cells[e].parent = item.parent;
+      item.cells.push(e);
+    });
+    // console.log('cell', cell)
+    item.ix = item.x;
+    item.iy = item.y;
+
+    if (groupCell) {
+      item.x = this.cells[groupCell].x;
+      item.y = this.cells[groupCell].y;
+      item.groupGridBounds = this.groupGridBounds;  
+    } else {
+      item.x = this.cells[locationCells[0]].x;
+      item.y = this.cells[locationCells[0]].y;
+    }
+
   },
 
   occupyNearest : function(p) {
@@ -209,20 +211,31 @@ export let grid = {
     var d;
     let winner = [];
 
+    const item = Array.isArray(p) ? p[0] : p;
+    const isArray = Array.isArray(p) ? true : false;
+    if (!Array.isArray(p)) {
+      console.log(p.name);
+    } 
+
     /* TODO: Rewrite as a search rippling out as
     concentric circles from the clicked item, return
     first match, rather than search through every grid coordinate.     
     */
-    for(var i = 0; i < this.cells.length; i++) {
-      let candidate = this.fitByType(i);
+
+    // Run through all the cells in the grid
+    for(var cell = 0; cell < this.cells.length; cell++) {
+      // See if the item would fit in that cell
+      let candidate = this.fitByType(cell);
       
-      if (candidate && (d = this.sqdist2(p[0], candidate)) < minDist ) { 
+      // See if that location is closest to the current
+      // location
+      if (candidate && (d = this.sqdist2(item, candidate, isArray)) < minDist ) { 
         minDist = d;
         winner = candidate;
       }
     }
     if (winner.length > 0) {
-
+      if (!Array.isArray(p)) console.log('the winner ', winner);
       return winner
       
     } else {
@@ -230,5 +243,25 @@ export let grid = {
       return false
     }
 
-  }
+  },
+
+  sqdist : function(a, b) {    
+    // return Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2);
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  },
+
+  // Finds the closest of any of the points in the group of
+  // items 
+  sqdist2 : function(item, candidate, isArray) {
+
+    let a = item;
+
+    
+
+    return candidate.reduce((prev,current) => {
+      let c = this.cells[current];
+      return this.sqdist(a, c) < prev ? this.sqdist(a, c) : prev
+    }, 99999999)
+
+  },
 }

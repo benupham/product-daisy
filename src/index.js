@@ -6,6 +6,7 @@ d3.forceAttract = forceAttract;
 d3.forceCluster = forceCluster;
 
 import {click, labelsArray} from './click';
+import {handleHover} from './hover';
 import {zoom, transform, zoomToBounds} from './zoom';
 import { textFormatter } from './utilities';
 import { imageSize, imagePosition, nameFontSize, nameAnchor, nameAlignment, namePosition, strokeColor, imagesURL, rectPosition, rectFill, rectSize, rectFilter, nameWidth, nameMaxLen, typePixelSize } from './constants';
@@ -13,18 +14,22 @@ import { grid } from './groupToGrid';
 import { GRID_WIDTH, GRID_UNIT_SIZE, GRID_HEIGHT } from './constants';
 import { wrapNames } from './sizeText';
 import { onMouseOver} from './devTools';
+// import { addPromoItems } from './promoItems';
 
 import './styles/style.css';
-import { addImages, addName, styleRectWrap } from './svgStyles';
+import { addBuyButton, addImages, addName, addProductStars, styleRectWrap } from './svgStyles';
 
 export const depts = [];
 export const subdepts = [];
 export const brands = [];
 export const products = [];
+export const promoItems = [];
+
 export let items = [];
 export let itemsByGroup = [];
 
 // The container for all the action.
+// Zoom is called on this, but zoomable does the zooming
 export const svg = d3.select("body").append("svg")
   .attr("class", "main")
   .attr("width", window.innerWidth)
@@ -36,9 +41,16 @@ export const zoomable = svg
   .append("g")
   .attr("class", "zoomable");
 
-svg.call(zoom.transform, transform);  
-  
+svg.call(zoom.transform, transform); 
+
 let node = zoomable.selectAll('g.node'); 
+
+// prototype of close button
+export const closeBtn = zoomable.append("circle")
+  .attr("r", 20)
+  .attr("stroke", "blue")
+  .attr("stroke-width", 2)
+  .attr("fill", "white")
 
 
 // Create nested objects for each product and dept in product set
@@ -50,10 +62,36 @@ d3.json("../data/productSet.json", function(error, root) {
       depts.push(d);
     } else if (d.type === 'subdept') {  
       subdepts.push(d);
+
+      // Add all the sales subdepts here
+      if (d.name.includes("Sales")) { 
+        let promo = Object.assign({}, d);
+        promo.promo = true;
+        promo.id = promo.id + '-promo';
+        promo.parent = promo.parent + '-promo';
+        promoItems.push(promo);
+      }
+
     } else if (d.type === 'brand') {
       brands.push(d);
+
+      if (d.img.includes("sales")) { 
+        let promo = Object.assign({}, d);
+        promo.promo = true;
+        promo.id = promo.id + '-promo';
+        promo.parent = promo.parent + '-promo';
+        promoItems.push(promo);
+      }
     } else if (d.type === 'product') {
       products.push(d);
+
+      if (d.price.includes("Reg:")) { 
+        let promo = Object.assign({}, d);
+        promo.promo = true;
+        promo.id = promo.id + '-promo';
+        promo.parent = promo.parent + '-promo';
+        promoItems.push(promo);
+      }
     }
   });
 
@@ -75,14 +113,26 @@ function appInit() {
   // Create the grid and zoom to it.
   grid.init();
   grid.snapToGrid(items);
-  zoomToBounds(grid.itemsGridBounds);
+  zoomToBounds(grid.groupGridBounds);
   // Arrange and style nodes on grid
+
+  console.log('center of depts',grid.groupGridBounds)
+  // promoItems.forEach(item => {
+  //   item.x = (grid.groupGridBounds[0][0] + grid.groupGridBounds[1][0]) / 2;
+  //   item.y = (grid.groupGridBounds[0][1] + grid.groupGridBounds[1][1]) / 2;
+  //   items.push(item);
+  //   grid.snapToGrid(item);
+  // })
+  
+
   update();
   
 }
 
 // Start or restart rendering of svgs    
 export function update() {
+
+  
   
   wrapNames(items);
 
@@ -97,71 +147,31 @@ export function update() {
   var nodeEnter = node.enter().append("g")
     .attr("class", d => d.type + " node latest")
     .attr("name", function (d) { return d.name; })
-
+    
   // Append a rectangle background
   styleRectWrap(nodeEnter);
   // Append images
   addImages(nodeEnter);
-
+  // Add the title
   addName(nodeEnter);
-
- 
-  
-  // Append stars rating for products
-  nodeEnter.filter(d => d.type === "product")
-    .append("image") 
-    .attr("xlink:href", imagesURL + "category-images/four-and-half-stars.png")
-    .attr("class", "stars")
-    .attr("x", d => namePosition[d.type][0])
-    .attr("y", d => {
-      return namePosition[d.type][1] + nameFontSize[d.type]*4.5
-    })
-    .attr("height", 25 ) 
-  
-  // Append buy button  
-  nodeEnter.filter(d => d.type === "product")
-    .append("rect")
-    .attr("class", "buy-button")
-    .attr("fill", "url(#lgrad)")
-    .attr("rx", "2")
-    .attr("stroke", "#a88734")
-    .attr("width", 156)
-    .attr("height", 40)
-    .attr("x", d => namePosition[d.type][0])
-    .attr("y", d => {
-      return namePosition[d.type][1] + nameFontSize[d.type]*6.5
-    })
-  // Buy button label
-  nodeEnter.filter(d => d.type === "product")
-    .append("text")
-    .text("Add to Cart")
-    .attr("x", 97.5)
-    .attr("y", 365)
-    .attr("text-anchor", "middle")
-    .attr('fill', '#111111')
-    .attr("font-size", 16)
-  
-  // nodeEnter
-    // .attr("transform", function (d) { return "translate(" + d.ix + "," + d.iy + ") scale(.25)"; });
+  // For products, add star rating
+  addProductStars(nodeEnter);
+  // For products, add buy button 
+  addBuyButton(nodeEnter);
   
   node = nodeEnter
     .merge(node)
   
-  let t = d3.transition()
-  .duration(250);  
-
   node
-    // .transition(t)  
     .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ") scale(1)"; })
 
- 
   
   // slowly fades the glow on the most recently added items  
   document.getElementById("fade-to-grey").beginElement();
   document.getElementById("shrink").beginElement();
 
-  node.on("click",click);
-
+  node.on("click", click);
+  // node.on("mouseover", handleHover);
   
 }  
 

@@ -52,7 +52,7 @@ export function click(d) {
     // Add them to the nodes for styling
     items.push(...itemsByGroup[0]); 
    
-    zoomToBounds(grid.itemsGridBounds);
+    zoomToBounds(grid.groupGridBounds);
   }
 
   update(); 
@@ -76,7 +76,7 @@ function removeDescendants(parent) {
   }
   parent.open = false;
   
-  zoomToBounds(parent.groupBounds);
+  zoomToBounds(parent.groupGridBounds);
 
 }
 

@@ -13,6 +13,8 @@ export function styleRectWrap(node) {
     .attr("height", d => rectSize[d.type][1]) 
     .attr("width", d => rectSize[d.type][0])
 
+    return node;
+
 }
 
 export function addImages(node) {
@@ -26,6 +28,8 @@ export function addImages(node) {
     .attr("height", d => imageSize[d.type] ) 
     .attr("width", d => imageSize[d.type])
     .attr("alignment-baseline", "middle")
+
+    return node;
 
 }
 
@@ -59,4 +63,55 @@ export function addName(node) {
     .attr("x", d => namePosition[d.type][0])
     .attr("dy", d => nameFontSize[d.type]*3);
 
+    return node;
+
 }
+
+export function addProductStars(node) {
+
+  // Append stars rating for products
+  node.filter(d => d.type === "product")
+  .append("image") 
+  .attr("xlink:href", imagesURL + "category-images/four-and-half-stars.png")
+  .attr("class", "stars")
+  .attr("x", d => namePosition[d.type][0])
+  .attr("y", d => {
+    return namePosition[d.type][1] + nameFontSize[d.type]*4.5
+  })
+  .attr("height", 25 ); 
+
+  return node;
+ 
+}
+
+export function addBuyButton(node) {
+  
+  // Append buy button  
+  node.filter(d => d.type === "product")
+  .append("rect")
+  .attr("class", "buy-button")
+  .attr("fill", "url(#lgrad)")
+  .attr("rx", "2")
+  .attr("stroke", "#a88734")
+  .attr("width", 156)
+  .attr("height", 40)
+  .attr("x", d => namePosition[d.type][0])
+  .attr("y", d => {
+    return namePosition[d.type][1] + nameFontSize[d.type]*6.5
+  })
+  // Buy button label
+  node.filter(d => d.type === "product")
+  .append("text")
+  .text("Add to Cart")
+  .attr("x", 97.5)
+  .attr("y", 365)
+  .attr("text-anchor", "middle")
+  .attr('fill', '#111111')
+  .attr("font-size", 16);
+
+  return node;
+
+}
+
+
+
