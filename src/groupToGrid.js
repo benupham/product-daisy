@@ -14,6 +14,10 @@ Steps:
 4. Update the position of all objects in the group based on final location of 0,0 square
 5. Objects are positioned by their order in the array. This does not change. 
 
+TO DO
+-- improve calculation of placement of items by rippling from center instead of checking every cell
+-- refactor for clarity between groups of items and single items
+
 */
 
 export let grid = {
@@ -213,9 +217,9 @@ export let grid = {
 
     const item = Array.isArray(p) ? p[0] : p;
     const isArray = Array.isArray(p) ? true : false;
-    if (!Array.isArray(p)) {
-      console.log(p.name);
-    } 
+    // if (!Array.isArray(p)) {
+    //   console.log(p.name);
+    // } 
 
     /* TODO: Rewrite as a search rippling out as
     concentric circles from the clicked item, return
@@ -235,7 +239,7 @@ export let grid = {
       }
     }
     if (winner.length > 0) {
-      if (!Array.isArray(p)) console.log('the winner ', winner);
+      // if (!Array.isArray(p)) console.log('the winner ', winner);
       return winner
       
     } else {

@@ -17,9 +17,43 @@ Behavior
 -- If a promo item is clicked, all other promo items are repositioned 
 
 */
+import { grid } from './groupToGrid';
+const promoCount = 20;
 
-const { items, promoItems } = require("./index");
+export function addPromoItems(items, promoItems, bounds) {
 
-export function addPromoItems() {
-  items.push(promoItems[0]);
+  // for (let i = 0; i < promoCount; i++) {
+  //   let c = Math.floor(Math.random() * Math.floor(promoItems.length));
+
+  //   const promoItem = promoItems[c];
+  //   promoItem.x = (bounds[0][0] + bounds[1][0]) / 2;
+  //   promoItem.y = (bounds[0][1] + bounds[1][1]) / 2;
+  //   grid.snapToGrid(promoItem);
+  //   items.push(promoItem);
+    
+  // }
+}
+
+export function removePromoItems(items, grid) {
+  
+  for( var i = 0; i < items.length; i++){ 
+    if ( items[i].promo === true) {
+      grid.resetCells(items[i].cells);
+      items.splice(i, 1);
+      i--;
+    }
+  }
+  
+}
+
+
+// translate page to SVG coordinate
+function svgPoint(element, x, y) {
+
+  const pt = svg.createSVGPoint();
+  pt.x = x;
+  pt.y = y;
+
+  return pt.matrixTransform( element.getScreenCTM().inverse() );
+
 }

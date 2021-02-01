@@ -6,7 +6,7 @@ d3.forceAttract = forceAttract;
 d3.forceCluster = forceCluster;
 
 import {click, labelsArray} from './click';
-import {handleHover} from './hover';
+import {createControls, handleHover} from './hover';
 import {zoom, transform, zoomToBounds} from './zoom';
 import { textFormatter } from './utilities';
 import { imageSize, imagePosition, nameFontSize, nameAnchor, nameAlignment, namePosition, strokeColor, imagesURL, rectPosition, rectFill, rectSize, rectFilter, nameWidth, nameMaxLen, typePixelSize } from './constants';
@@ -14,7 +14,7 @@ import { grid } from './groupToGrid';
 import { GRID_WIDTH, GRID_UNIT_SIZE, GRID_HEIGHT } from './constants';
 import { wrapNames } from './sizeText';
 import { onMouseOver} from './devTools';
-// import { addPromoItems } from './promoItems';
+import { addPromoItems } from './promoItems';
 
 import './styles/style.css';
 import { addBuyButton, addImages, addName, addProductStars, styleRectWrap } from './svgStyles';
@@ -45,13 +45,6 @@ svg.call(zoom.transform, transform);
 
 let node = zoomable.selectAll('g.node'); 
 
-// prototype of close button
-export const closeBtn = zoomable.append("circle")
-  .attr("r", 20)
-  .attr("stroke", "blue")
-  .attr("stroke-width", 2)
-  .attr("fill", "white")
-
 
 // Create nested objects for each product and dept in product set
 d3.json("../data/productSet.json", function(error, root) {
@@ -63,7 +56,7 @@ d3.json("../data/productSet.json", function(error, root) {
     } else if (d.type === 'subdept') {  
       subdepts.push(d);
 
-      // Add all the sales subdepts here
+      // Add all the promo subdepts here
       if (d.name.includes("Sales")) { 
         let promo = Object.assign({}, d);
         promo.promo = true;
@@ -75,6 +68,7 @@ d3.json("../data/productSet.json", function(error, root) {
     } else if (d.type === 'brand') {
       brands.push(d);
 
+      // Add the promo brand items 
       if (d.img.includes("sales")) { 
         let promo = Object.assign({}, d);
         promo.promo = true;
@@ -85,6 +79,7 @@ d3.json("../data/productSet.json", function(error, root) {
     } else if (d.type === 'product') {
       products.push(d);
 
+      // Add promo products
       if (d.price.includes("Reg:")) { 
         let promo = Object.assign({}, d);
         promo.promo = true;
@@ -114,16 +109,10 @@ function appInit() {
   grid.init();
   grid.snapToGrid(items);
   zoomToBounds(grid.groupGridBounds);
-  // Arrange and style nodes on grid
-
-  console.log('center of depts',grid.groupGridBounds)
-  // promoItems.forEach(item => {
-  //   item.x = (grid.groupGridBounds[0][0] + grid.groupGridBounds[1][0]) / 2;
-  //   item.y = (grid.groupGridBounds[0][1] + grid.groupGridBounds[1][1]) / 2;
-  //   items.push(item);
-  //   grid.snapToGrid(item);
-  // })
   
+  addPromoItems(items, promoItems, grid.groupGridBounds);  
+
+  createControls(zoomable);
 
   update();
   
@@ -132,8 +121,6 @@ function appInit() {
 // Start or restart rendering of svgs    
 export function update() {
 
-  
-  
   wrapNames(items);
 
   node = node.data(items, function(d) { return d.id;})
@@ -171,7 +158,8 @@ export function update() {
   document.getElementById("shrink").beginElement();
 
   node.on("click", click);
-  // node.on("mouseover", handleHover);
+  node.on("mouseover", handleHover);
+
   
 }  
 

@@ -1,10 +1,11 @@
 import * as d3 from 'd3';
 
-import {depts,subdepts,brands,products, items, update, svg, zoomable, zoom, itemsByGroup} from './index';
+import {depts,subdepts,brands,products, items, update, svg, zoomable, zoom, itemsByGroup, promoItems} from './index';
 import {grid} from './groupToGrid';
 import { zoomIdentity } from 'd3';
 import { clickTracker } from './devTools';
 import { zoomToBounds } from './zoom';
+import { addPromoItems, removePromoItems } from './promoItems';
 
 export const labelsArray = [];
 
@@ -14,6 +15,8 @@ export function click(d) {
   let clickPoint = d3.mouse(zoomable.node());
   clickTracker(clickPoint);
 
+  removePromoItems(items, grid);
+
   if (d.open === true) {
    
     removeDescendants(d);
@@ -21,7 +24,10 @@ export function click(d) {
   } else {
 
     let newItems = []; 
-    if (d.type == 'dept') {
+    if (d.promo === true) {
+      newItems = promoItems.filter(pi => pi.parent == d.id)
+      console.log('clicked', d, 'newitems', newItems)
+    } else if (d.type == 'dept') {
       newItems = subdepts.filter(sd => sd.parent == d.id)
     } else if (d.type == 'subdept') {
       newItems = brands.filter(b => b.parent == d.id)
@@ -52,14 +58,17 @@ export function click(d) {
     // Add them to the nodes for styling
     items.push(...itemsByGroup[0]); 
    
+    addPromoItems(items, promoItems, grid.groupGridBounds);
     zoomToBounds(grid.groupGridBounds);
+
+    
   }
 
   update(); 
 
 }
 
-function removeDescendants(parent) {
+export function removeDescendants(parent) {
   
   // Remove the children of clicked parent item
   for( var i = 0; i < items.length; i++){ 
@@ -76,6 +85,7 @@ function removeDescendants(parent) {
   }
   parent.open = false;
   
+  addPromoItems(items, promoItems, grid.groupGridBounds);
   zoomToBounds(parent.groupGridBounds);
 
 }
